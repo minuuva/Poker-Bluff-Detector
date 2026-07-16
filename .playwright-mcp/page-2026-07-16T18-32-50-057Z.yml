@@ -1,0 +1,487 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e6]:
+      - link [ref=e9] [cursor=pointer]:
+        - /url: https://www.pokerscout.com/
+      - navigation [ref=e28]:
+        - list [ref=e29]:
+          - listitem [ref=e30]:
+            - link "Poker News" [ref=e31] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/
+          - listitem [ref=e32]:
+            - link "Strategy Guides" [ref=e33] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/guides/
+          - listitem [ref=e34]:
+            - link "Odds Calculators" [ref=e35] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/calculators/texas-holdem-odds/
+          - listitem [ref=e36]:
+            - link "About" [ref=e37] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/about/
+      - generic [ref=e38]:
+        - button [ref=e40] [cursor=pointer]:
+          - img "Search Icon" [ref=e41]
+        - link "Find poker games" [ref=e43] [cursor=pointer]:
+          - /url: https://www.pokerscout.com/games/
+  - main [ref=e46]:
+    - generic [ref=e47]:
+      - navigation [ref=e48]:
+        - list [ref=e50]:
+          - listitem [ref=e51]:
+            - link "Latest News" [ref=e52] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/
+          - listitem [ref=e53]:
+            - link "Culture" [ref=e54] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/culture/
+          - listitem [ref=e55]:
+            - link "Featured" [ref=e56] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/featured/
+          - listitem [ref=e57]:
+            - link "Gambling" [ref=e58] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/gambling/
+          - listitem [ref=e59]:
+            - link "Industry" [ref=e60] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/industry/
+          - listitem [ref=e61]:
+            - link "Interviews" [ref=e62] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/interviews/
+          - listitem [ref=e63]:
+            - link "Player" [ref=e64] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/player/
+          - listitem [ref=e65]:
+            - link "Tournament" [ref=e66] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/tournament/
+      - generic [ref=e68]:
+        - paragraph [ref=e69]:
+          - generic [ref=e70]:
+            - link "Home" [ref=e72] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/
+            - text: »
+            - link "Poker" [ref=e74] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/poker/
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - article [ref=e77]:
+              - generic [ref=e78]:
+                - generic [ref=e81]:
+                  - 'heading "Opinion: ESPN’s New Poker Tell AI Is a Solution No One Asked For, to a Problem That Doesn’t Exist" [level=1] [ref=e82]'
+                  - generic [ref=e86]:
+                    - generic [ref=e87]:
+                      - link "Alex Weldon" [ref=e90] [cursor=pointer]:
+                        - /url: https://www.pokerscout.com/authors/alexw/
+                      - generic [ref=e91]:
+                        - img "checkmark" [ref=e92]
+                        - text: Managing Editor
+                      - time [ref=e96]: "Updated: 8 Jul 2026"
+                    - generic [ref=e97]: Share this page
+                - figure "Does poker actually need this?" [ref=e101]:
+                  - img "A robot stands behind a poker player, holding up a sign that says \"Bluffing!\"" [ref=e102]
+              - generic [ref=e104]:
+                - paragraph [ref=e105]:
+                  - strong [ref=e106]: ESPN’s coverage of this year’s World Series of Poker
+                  - text: features a new gimmick no one asked for —
+                  - strong [ref=e107]: AI-based analysis of players’ expressions and body language,
+                  - text: which purports to determine whether or not they’re bluffing.
+                - paragraph [ref=e108]:
+                  - text: For game integrity reasons, the new technology will only be applied to players who have already been eliminated from the tournament. Even if it were applied to players during their live streams, there’s no clear need for it, since the “hole cam” (or
+                  - link "its RFID successor" [ref=e109] [cursor=pointer]:
+                    - /url: https://www.pokerscout.com/daniel-weinman-says-no-high-profile-rfid-cheating-wsop-believes-robbie-jade-lew-cheated/
+                  - text: ) has been in effect since 2002.
+                - paragraph [ref=e110]: Fans were quick to point this out on social media when the feature was announced.
+                - blockquote [ref=e111]:
+                  - paragraph [ref=e112]: Can’t we tell that they are bluffing by the fact that we know what cards they have
+                  - paragraph [ref=e113]:
+                    - text: — Baseball Aslan (@BaseballAslan)
+                    - link "July 8, 2026" [ref=e114] [cursor=pointer]:
+                      - /url: https://x.com/BaseballAslan/status/2074681046738616587?ref_src=twsrc%5Etfw
+                - paragraph
+                - paragraph [ref=e115]:
+                  - text: The tool was developed by independent AI engineer
+                  - strong [ref=e116]: Luke Geel,
+                  - text: who describes himself as an avid poker player. He’s also adept at self-marketing, having written about his tell detector for
+                  - emphasis [ref=e117]: Poker.org
+                  - text: and landed a contract with Omaha Productions, the new producer for the televised WSOP this year.
+                - paragraph [ref=e118]: If you ask me, however, this project highlights the biggest problem with the AI industry in general. It’s not that it hallucinates, or that it’s bad for the environment, or that it’s going to eliminate everyone’s jobs, or any of the other usual criticisms. I find most of those a little overblown.
+                - paragraph [ref=e119]:
+                  - text: It’s that
+                  - emphasis [ref=e120]: no one actually seems to know what it’s for.
+                  - text: AI has found a home here and there — for instance, in producing images to accompany op-eds like this one. However, in many cases, it is still a solution in search of a problem.
+                - heading "Supply-Side Economics as a Business Plan" [level=2] [ref=e121]
+                - paragraph [ref=e122]:
+                  - text: This issue isn’t unique to the AI industry. It’s common across the tech sector. For instance, the entire wearables business seems predicated on the idea that because we
+                  - emphasis [ref=e123]: can
+                  - text: pack high-end electronics into a ring or a pair of sunglasses, there must be some reason someone would want that.
+                - paragraph [ref=e124]:
+                  - text: There’s been
+                  - link "a popular meme" [ref=e125] [cursor=pointer]:
+                    - /url: https://knowyourmeme.com/memes/profit
+                  - text: "among engineers since the late 1990s that follows the format:"
+                - list [ref=e126]:
+                  - listitem [ref=e127]:
+                    - text: "Step 1 and 2:"
+                    - emphasis [ref=e128]: "[whatever it is your startup is doing]"
+                  - listitem [ref=e129]: "Step 3: ???"
+                  - listitem [ref=e130]: "Step 4: Profit!"
+                - paragraph [ref=e131]:
+                  - text: It’s probably no coincidence that the technology industry first began to take on its current form during and immediately after the Reagan years. Famously or infamously, depending on your perspective, that era of politics marked the rise in popularity of
+                  - strong [ref=e132]:
+                    - emphasis [ref=e133]: supply-side economics.
+                - paragraph [ref=e134]: Reagan and his economic advisors popularized the idea that industrial output was the primary driver of the economy, and that tax cuts for the wealthy and for large businesses were the means to stimulate that.
+                - paragraph [ref=e135]: It was an inversion of the long-held economic belief that consumer demand and consequent spending are what make for a healthy economy. Whereas once, economic policy focused on making sure the populace had money to spend on goods, the emphasis became on ensuring that output continued to grow under the assumption that someone, somewhere, would generate the requisite demand to match the supply.
+                - paragraph [ref=e136]: That logic, which I happen to disagree with, seems to have infested the entrepreneurial world, especially on its high-tech fringes. Once upon a time, the business world would have started with a real problem — housing shortages, the plague of ticks descending on the East Coast, or the dire state of bacon packaging — and gone about finding a way to address it profitably.
+                - paragraph [ref=e137]:
+                  - text: Now, instead of that, we get smart rings and poker tell detection AI, and businesses that spend a lot of their time and energy on Step 3 in that meme. That is, trying to figure out how to get people to pay for the things that they built
+                  - emphasis [ref=e138]: just because they could.
+                - heading "Poker Tells Are Overrated" [level=2] [ref=e139]
+                - paragraph [ref=e140]:
+                  - text: Like those video-enabled smart glasses, it’s easier to imagine
+                  - emphasis [ref=e141]: undesirable
+                  - text: uses of AI tell detection than desirable ones. In fact, those two things together would be worse than the sum of their parts. And, as some have pointed out, it’s the sort of thing that government agencies might get excited about if it works too well, and we all know where that leads.
+                - paragraph [ref=e142]: That said, the charitable view of the AI tell detection is that its novelty value might be worthwhile for one season, at least. Whether it succeeds at its task or fails, viewers might enjoy getting an answer to the question of whether this sort of thing is possible.
+                - blockquote [ref=e143]:
+                  - paragraph [ref=e144]: Seems more like a silly fun thing that has zero meaning but rec players will think it’s cool. We already know if players are bluffing we can see their cards on stream
+                  - paragraph [ref=e145]:
+                    - text: — sammie g (@thefakesammieg)
+                    - link "July 8, 2026" [ref=e146] [cursor=pointer]:
+                      - /url: https://x.com/thefakesammieg/status/2074869285655101556?ref_src=twsrc%5Etfw
+                - paragraph
+                - paragraph [ref=e147]: Beyond that, it’s less clear what such technology would add to a broadcast, even if hole cards weren’t available.
+                - paragraph [ref=e148]:
+                  - text: Any poker player knows that the importance of tells to the game is vastly overstated in pop culture. A player adept at interpreting behavior will use tells as a “tie-breaker” of sorts when the situation is otherwise a close one. However, it always plays second fiddle to strategic fundamentals. Zachary Elwood, author of
+                  - emphasis [ref=e149]: Reading Poker Tells
+                  - text: and
+                  - emphasis [ref=e150]: Verbal Poker Tells
+                  - text: ", repeatedly emphasizes in his books that a tell should never be your primary reason for making a decision."
+                - paragraph [ref=e151]: In terms of applying AI to determine bluff frequency, the results for any competent player would be more accurate if using board texture and bet size as the inputs, rather than video data.
+                - paragraph [ref=e152]: But that would put utility ahead of technological “wow factor.” And that’s not how the AI industry rolls.
+                - paragraph [ref=e153]
+              - generic [ref=e155]:
+                - generic [ref=e158]:
+                  - link "Alex Weldon" [ref=e160] [cursor=pointer]:
+                    - /url: https://www.pokerscout.com/authors/alexw/
+                  - generic [ref=e161]: Managing Editor
+                - generic [ref=e162]:
+                  - paragraph [ref=e163]: Alex Weldon is a gambling journalist from Nova Scotia, Canada, serving as Managing Editor for PokerScout. He has over a decade of experience covering the online poker vertical, including work on industry flagships like OnlinePokerReport, Bonus.com, and PartTimePoker. His work has been cited by The Atlantic, Fox News, and others. With an academic background in physics, Alex brings an analytical perspective to gambling. Outside of journalism, his passions include game design, visual art, and disc golf.
+                  - link "All Articles by Alex Weldon" [ref=e165] [cursor=pointer]:
+                    - /url: https://www.pokerscout.com/authors/alexw/
+            - list [ref=e168]:
+              - listitem [ref=e169]:
+                - link "WSOP" [ref=e170] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/tag/wsop/
+            - generic [ref=e171]:
+              - generic [ref=e172]: Share this page
+              - list [ref=e174]:
+                - listitem [ref=e175]:
+                  - link [ref=e176] [cursor=pointer]:
+                    - /url: "https://www.linkedin.com/shareArticle?mini=true&url=https://www.pokerscout.com/espn-poker-detect-ai-solution-searching-for-problem/title=Opinion: ESPN’s New Poker Tell AI Is a Solution No One Asked For, to a Problem That Doesn’t Exist"
+                - listitem [ref=e177]:
+                  - link [ref=e178] [cursor=pointer]:
+                    - /url: "https://twitter.com/intent/tweet?text=Opinion: ESPN’s New Poker Tell AI Is a Solution No One Asked For, to a Problem That Doesn’t Exist+-+https://www.pokerscout.com/espn-poker-detect-ai-solution-searching-for-problem/"
+                - listitem [ref=e179]:
+                  - link [ref=e180] [cursor=pointer]:
+                    - /url: https://www.facebook.com/sharer/sharer.php?u=https://www.pokerscout.com/espn-poker-detect-ai-solution-searching-for-problem/
+          - complementary [ref=e184]:
+            - generic [ref=e185]:
+              - heading "Related News" [level=2] [ref=e186]
+              - generic [ref=e187]:
+                - generic [ref=e188]:
+                  - generic:
+                    - link "Henrik Hecklen playing poker":
+                      - /url: https://www.pokerscout.com/triton-files-questions-publicly-available-poker-tournament-results-data-scraping/
+                      - img "Henrik Hecklen playing poker" [ref=e189] [cursor=pointer]
+                    - generic [ref=e190]:
+                      - link "Featured" [ref=e191] [cursor=pointer]:
+                        - /url: https://www.pokerscout.com/news/featured/
+                      - link "Triton Files Spur Questions About Publicly Available Poker Results" [ref=e192] [cursor=pointer]:
+                        - /url: https://www.pokerscout.com/triton-files-questions-publicly-available-poker-tournament-results-data-scraping/
+                      - generic [ref=e193]:
+                        - link "Mo Nuwwarah" [ref=e194] [cursor=pointer]:
+                          - /url: https://www.pokerscout.com/authors/monuwwarah/
+                        - text: 30 June 2026
+                - generic [ref=e196]:
+                  - link [ref=e197] [cursor=pointer]:
+                    - /url: https://www.pokerscout.com/political-gridlock-bug-or-feature/
+                    - img "Birds-eye view of a downtown intersection with heavily gridlocked traffic." [ref=e198]
+                  - generic [ref=e199]:
+                    - link "Featured" [ref=e200] [cursor=pointer]:
+                      - /url: https://www.pokerscout.com/news/featured/
+                    - link "For Lawmakers, Political Gridlock on Gambling Issues May Be a Feature, Not a Bug" [ref=e201] [cursor=pointer]:
+                      - /url: https://www.pokerscout.com/political-gridlock-bug-or-feature/
+                    - generic [ref=e202]: 03 June 2026
+                - generic [ref=e204]:
+                  - link [ref=e205] [cursor=pointer]:
+                    - /url: https://www.pokerscout.com/ask-charlotte-ai-powered-digital-poker-assistant/
+                    - img "Ask Charlotte Digital Poker Assistant" [ref=e206]
+                  - generic [ref=e207]:
+                    - link "Featured" [ref=e208] [cursor=pointer]:
+                      - /url: https://www.pokerscout.com/news/featured/
+                    - 'link "AI-Powered ''Personal Assistant for Poker'': Art Parmann Wants Players to Give ''Ask Charlotte'' a Try This Summer" [ref=e209] [cursor=pointer]':
+                      - /url: https://www.pokerscout.com/ask-charlotte-ai-powered-digital-poker-assistant/
+                    - generic [ref=e210]: 26 May 2026
+                - generic [ref=e212]:
+                  - link [ref=e213] [cursor=pointer]:
+                    - /url: https://www.pokerscout.com/what-bloomberg-businessweek-gets-wrong-about-drakes-hot-streak-on-stake/
+                    - img "Illustration of a slot machine blazing with flames." [ref=e214]
+                  - generic [ref=e215]:
+                    - link "Featured" [ref=e216] [cursor=pointer]:
+                      - /url: https://www.pokerscout.com/news/featured/
+                    - link "What Bloomberg Businessweek Gets Wrong About Drake's Hot Streak on Stake" [ref=e217] [cursor=pointer]:
+                      - /url: https://www.pokerscout.com/what-bloomberg-businessweek-gets-wrong-about-drakes-hot-streak-on-stake/
+                    - generic [ref=e218]: 02 March 2026
+                - generic [ref=e220]:
+                  - link [ref=e221] [cursor=pointer]:
+                    - /url: https://www.pokerscout.com/how-do-we-differentiate-engagement-from-addiction-a-question-of-dire-importance-in-gaming-and-gambling/
+                    - img "Smartphone with shackles attached" [ref=e222]
+                  - generic [ref=e223]:
+                    - link "Featured" [ref=e224] [cursor=pointer]:
+                      - /url: https://www.pokerscout.com/news/featured/
+                    - link "How Do We Differentiate Engagement From Addiction? — A Question of Dire Importance in Gaming and Gambling" [ref=e225] [cursor=pointer]:
+                      - /url: https://www.pokerscout.com/how-do-we-differentiate-engagement-from-addiction-a-question-of-dire-importance-in-gaming-and-gambling/
+                    - generic [ref=e226]: 25 February 2026
+              - link "All News" [ref=e228] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/news/
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - paragraph [ref=e232]: Your Gateway To The Juiciest Games Online
+                - img "small-brand" [ref=e234]
+              - list [ref=e236]:
+                - listitem [ref=e237]: Live traffic reports and expert insights
+                - listitem [ref=e238]: 24-hour peaks, and total volume reports
+                - listitem [ref=e239]: Game Finder to search for the best action in real time
+              - link "Why You Can Trust PokerScout" [ref=e241] [cursor=pointer]:
+                - /url: /about/
+            - generic [ref=e247]:
+              - paragraph [ref=e249]: Top Poker Sites by Player Traffic 24h
+              - generic [ref=e250]:
+                - generic [ref=e251]:
+                  - generic [ref=e252]:
+                    - emphasis [ref=e253]:
+                      - img "GGPoker" [ref=e254]
+                    - generic [ref=e255]: GGPoker
+                  - generic [ref=e257]:
+                    - generic [ref=e258]: 144,232
+                    - generic [ref=e260]: (-9%)
+                - generic [ref=e261]:
+                  - generic [ref=e262]:
+                    - emphasis [ref=e263]:
+                      - img "PokerStars" [ref=e264]
+                    - generic [ref=e265]: PokerStars
+                  - generic [ref=e267]:
+                    - generic [ref=e268]: 38,828
+                    - generic [ref=e270]: (0%)
+                - generic [ref=e271]:
+                  - generic [ref=e272]:
+                    - emphasis [ref=e273]:
+                      - img "PokerKing" [ref=e274]
+                    - generic [ref=e275]: PokerKing
+                  - generic [ref=e277]:
+                    - generic [ref=e278]: 13,049
+                    - generic [ref=e280]: (-2%)
+                - generic [ref=e281]:
+                  - generic [ref=e282]:
+                    - emphasis [ref=e283]:
+                      - img "ACR" [ref=e284]
+                    - generic [ref=e285]: ACR
+                  - generic [ref=e287]:
+                    - generic [ref=e288]: 6,736
+                    - generic [ref=e290]: (0%)
+                - generic [ref=e291]:
+                  - generic [ref=e292]:
+                    - emphasis [ref=e293]:
+                      - img "Ignition Poker" [ref=e294]
+                    - generic [ref=e295]: Ignition Poker
+                  - generic [ref=e297]:
+                    - generic [ref=e298]: 5,099
+                    - generic [ref=e300]: (-1%)
+    - generic [ref=e303]:
+      - heading "Latest News" [level=2] [ref=e304]
+      - generic [ref=e305]:
+        - generic [ref=e306]:
+          - generic:
+            - link "Jared Griener":
+              - /url: https://www.pokerscout.com/poker-pro-jared-griener-robbed-airbnb-vegas-wsop/
+              - img "Jared Griener" [ref=e307] [cursor=pointer]
+            - generic [ref=e308]:
+              - link "News" [ref=e309] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/news/
+              - link "Poker Pro Jared Griener Robbed at Rental in Vegas After WSOP Cashout" [ref=e310] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/poker-pro-jared-griener-robbed-airbnb-vegas-wsop/
+              - generic [ref=e311]:
+                - link "Jeffrey McMillan" [ref=e312] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/authors/jeffreymcmillan/
+                - text: 16 July 2026
+        - generic [ref=e314]:
+          - link [ref=e315] [cursor=pointer]:
+            - /url: https://www.pokerscout.com/new-tribal-casino-texas-foxwoods-architects-biggest-yet/
+            - img "Naskila Casino" [ref=e316]
+          - generic [ref=e317]:
+            - link "Casino" [ref=e318] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/casino/
+            - link "New Tribal Casino in Texas Will Be the State's Biggest Yet" [ref=e319] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/new-tribal-casino-texas-foxwoods-architects-biggest-yet/
+            - generic [ref=e320]:
+              - link "Jeffrey McMillan" [ref=e321] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/authors/jeffreymcmillan/
+              - text: 16 July 2026
+        - generic [ref=e323]:
+          - link [ref=e324] [cursor=pointer]:
+            - /url: https://www.pokerscout.com/how-wsop-main-event-final-table-icm-value-will-affect-strategy/
+          - generic [ref=e325]:
+            - link "News" [ref=e326] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/
+            - link "How the WSOP Main Event Final Table ICM Values Will Affect Strategy" [ref=e327] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/how-wsop-main-event-final-table-icm-value-will-affect-strategy/
+            - generic [ref=e328]:
+              - link "Jeffrey McMillan" [ref=e329] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/authors/jeffreymcmillan/
+              - text: 15 July 2026
+        - generic [ref=e331]:
+          - link [ref=e332] [cursor=pointer]:
+            - /url: https://www.pokerscout.com/alternatives-clocks-wsop-main-event-avoid-stalling/
+            - img "WSOP stage" [ref=e333]
+          - generic [ref=e334]:
+            - link "News" [ref=e335] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/
+            - link "Could the WSOP Have Gone a Different Route to Speed Up Main Event Play?" [ref=e336] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/alternatives-clocks-wsop-main-event-avoid-stalling/
+            - generic [ref=e337]:
+              - link "Jeffrey McMillan" [ref=e338] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/authors/jeffreymcmillan/
+              - text: 15 July 2026
+        - generic [ref=e340]:
+          - link [ref=e341] [cursor=pointer]:
+            - /url: https://www.pokerscout.com/shane-hennen-guilty-plea-latest-development-rigged-poker-case-chauncey-billups/
+            - img "A person signs paperwork" [ref=e342]
+          - generic [ref=e343]:
+            - link "News" [ref=e344] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/
+            - link "Shane Hennen Guilty Plea Latest Development in Rigged Poker Case -- What Does it Mean for Chauncey Billups?" [ref=e345] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/shane-hennen-guilty-plea-latest-development-rigged-poker-case-chauncey-billups/
+            - generic [ref=e346]:
+              - link "Mo Nuwwarah" [ref=e347] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/authors/monuwwarah/
+              - text: 14 July 2026
+        - generic [ref=e349]:
+          - link [ref=e350] [cursor=pointer]:
+            - /url: https://www.pokerscout.com/possible-casino-korean-citizens-saemangeum/
+            - img "Saemangeum" [ref=e351]
+          - generic [ref=e352]:
+            - link "Casino" [ref=e353] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/casino/
+            - link "Possible Casino For Korean Citizens on Saemangeum" [ref=e354] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/possible-casino-korean-citizens-saemangeum/
+            - generic [ref=e355]:
+              - link "Jeffrey McMillan" [ref=e356] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/authors/jeffreymcmillan/
+              - text: 13 July 2026
+        - generic [ref=e358]:
+          - link [ref=e359] [cursor=pointer]:
+            - /url: https://www.pokerscout.com/opinion-wsop-main-event-players-have-only-themselves-blame-shot-clocks/
+            - img "Loren Klein plays at the WSOP" [ref=e360]
+          - generic [ref=e361]:
+            - link "News" [ref=e362] [cursor=pointer]:
+              - /url: https://www.pokerscout.com/news/
+            - 'link "Opinion: WSOP Main Event Players Have Only Themselves to Blame For Shot Clocks" [ref=e363] [cursor=pointer]':
+              - /url: https://www.pokerscout.com/opinion-wsop-main-event-players-have-only-themselves-blame-shot-clocks/
+            - generic [ref=e364]:
+              - link "Jeffrey McMillan" [ref=e365] [cursor=pointer]:
+                - /url: https://www.pokerscout.com/authors/jeffreymcmillan/
+              - text: 13 July 2026
+      - link "All News" [ref=e367] [cursor=pointer]:
+        - /url: https://www.pokerscout.com/news/
+  - contentinfo [ref=e368]:
+    - generic [ref=e371]:
+      - list [ref=e375]:
+        - listitem [ref=e376]:
+          - link [ref=e377] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/pokerscout/
+        - listitem [ref=e378]:
+          - link [ref=e379] [cursor=pointer]:
+            - /url: https://x.com/pokerscoutcom
+      - generic [ref=e380]:
+        - generic [ref=e382]:
+          - strong [ref=e383]: The Online Poker Source Since 2006
+          - paragraph [ref=e384]: PokerScout is your go-to source for poker news, poker odds calculators, and poker traffic stats. Providing everything you need to play poker online since 2006.
+          - generic [ref=e385]:
+            - link [ref=e386] [cursor=pointer]:
+              - /url: https://www.gambleaware.org/
+            - link [ref=e387] [cursor=pointer]:
+              - /url: https://www.gamcare.org.uk/
+            - link [ref=e388] [cursor=pointer]:
+              - /url: https://gamblersanonymous.org/find-a-meeting/ga-gavle-monday/
+        - generic [ref=e389]:
+          - generic [ref=e390]:
+            - strong [ref=e391]: Poker News
+            - list [ref=e393]:
+              - listitem [ref=e394]:
+                - link "Culture" [ref=e395] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/news/culture/
+              - listitem [ref=e396]:
+                - link "Industry" [ref=e397] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/news/industry/
+              - listitem [ref=e398]:
+                - link "Interviews" [ref=e399] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/interviews/
+              - listitem [ref=e400]:
+                - link "Player" [ref=e401] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/news/player/
+              - listitem [ref=e402]:
+                - link "Tournament" [ref=e403] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/news/tournament/
+          - generic [ref=e404]:
+            - strong [ref=e405]: How to Play
+            - list [ref=e407]:
+              - listitem [ref=e408]:
+                - link "How to Play Video Poker" [ref=e409] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/guides/how-to-play-video-poker/
+              - listitem [ref=e410]:
+                - link "Limit vs No Limit" [ref=e411] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/guides/limit-vs-no-limit-poker/
+              - listitem [ref=e412]:
+                - link "Poker Etiquette" [ref=e413] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/guides/poker-etiquette/
+              - listitem [ref=e414]:
+                - link "Types of Poker Games" [ref=e415] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/guides/types-of-poker-games/
+              - listitem [ref=e416]:
+                - link "Worst Poker Hands" [ref=e417] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/guides/worst-hand-in-poker/
+          - generic [ref=e418]:
+            - strong [ref=e419]: Calculators
+            - list [ref=e421]:
+              - listitem [ref=e422]:
+                - link "Texas Hold’em" [ref=e423] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/calculators/texas-holdem-odds/
+              - listitem [ref=e424]:
+                - link "Omaha" [ref=e425] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/calculators/omaha-odds/
+              - listitem [ref=e426]:
+                - link "Seven‑Card Stud" [ref=e427] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/calculators/seven-card-stud-odds/
+              - listitem [ref=e428]:
+                - link "Razz" [ref=e429] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/calculators/razz-odds/
+              - listitem [ref=e430]:
+                - link "Deuce-to-Seven" [ref=e431] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/calculators/deuce-to-seven-odds/
+          - generic [ref=e432]:
+            - strong [ref=e433]: About PokerScout
+            - list [ref=e435]:
+              - listitem [ref=e436]:
+                - link "About Us" [ref=e437] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/about/
+              - listitem [ref=e438]:
+                - link "Contact" [ref=e439] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/contact/
+              - listitem [ref=e440]:
+                - link "Editorial Team" [ref=e441] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/authors/
+              - listitem [ref=e442]:
+                - link "FAQs" [ref=e443] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/faq/
+              - listitem [ref=e444]:
+                - link "Responsible Gambling" [ref=e445] [cursor=pointer]:
+                  - /url: https://www.pokerscout.com/responsible-gaming/
+      - generic [ref=e446]:
+        - paragraph [ref=e448]: Copyright © 2026 PokerScout. Do not copy, redistribute or republish without prior written consent. Please gamble responsibly. If you or someone you know has a gambling problem, please visit begambleaware.com (Great Britain) to find help.
+        - button "English" [ref=e452] [cursor=pointer]
+    - img "Footer background" [ref=e456]

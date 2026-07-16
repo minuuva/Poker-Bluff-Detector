@@ -1,0 +1,6 @@
+[   12343ms] [LOG] [sdk] found subdomain 2ba46f81 @ https://bs_2ba46f81.bbuyop.care/sdk.js?ver=6.9:0
+[   12344ms] [LOG] [sdk] c491feee processed. native_table_box id: bs_2ba46f81 @ https://bs_2ba46f81.bbuyop.care/sdk.js?ver=6.9:0
+[   12997ms] [LOG] [sdk] config set lang to en @ https://www.pokerscout.com/wp-content/plugins/wp-sentry-integration/public/wp-sentry-browser.min.js?ver=8.10.0:1
+[   12997ms] [LOG] [sdk] config set style to  @ https://www.pokerscout.com/wp-content/plugins/wp-sentry-integration/public/wp-sentry-browser.min.js?ver=8.10.0:1
+[   13051ms] [LOG] [sdk] translate: c491feee to: en @ https://www.pokerscout.com/wp-content/plugins/wp-sentry-integration/public/wp-sentry-browser.min.js?ver=8.10.0:1
+[   13052ms] [LOG] [sdk] found bottom banner @ https://www.pokerscout.com/wp-content/plugins/wp-sentry-integration/public/wp-sentry-browser.min.js?ver=8.10.0:1

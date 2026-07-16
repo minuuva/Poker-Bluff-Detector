@@ -1,0 +1,42 @@
+# HUD ROI layout for Hustler Casino Live, 2026 overlay era (1080p).
+# Measured 2026-07-16 against sessions osFhAW7BFMs (Jul 2026) and
+# loAuriiBRCk (Feb 2026). Coordinates are pixels on the 1920x1080 frame,
+# origin top-left.
+#
+# Layout notes:
+# - Right panel (pot, board, stakes) is fixed-position across sessions:
+#   read with tight ROIs. Board shows up to 5 card sprites; empty preflop.
+# - Player panels stack in the bottom-left column, one per player in the
+#   hand (2 to 8), action order top to bottom. Row 1: name | hole cards |
+#   equity%. Row 2: action | stack | position. The stack's anchor and pitch
+#   drift across sessions and the acting player's panel indents right by
+#   ~75 px, so these are NOT ROI-based: fields.py clusters text detections
+#   into rows and classifies them by content. panels_left below only bounds
+#   the candidate region and the hole-card template-match search area.
+
+name: hcl-1080p-2026
+frame:
+  width: 1920
+  height: 1080
+
+rois:
+  pot:
+    x: 1665
+    y: 835
+    w: 185
+    h: 48
+  board:
+    x: 1558
+    y: 886
+    w: 292
+    h: 56
+  stakes:
+    x: 1600
+    y: 946
+    w: 215
+    h: 44
+  panels_left:
+    x: 0
+    y: 420
+    w: 590
+    h: 660
