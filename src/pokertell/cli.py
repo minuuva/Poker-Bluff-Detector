@@ -117,9 +117,41 @@ def ocr_frame(
 
 
 @app.command("extract-state")
-def extract_state(video: Path) -> None:
-    """OCR the HUD stream into hand histories (day 2-3)."""
-    _todo("extract-state", "day 2-3")
+def extract_state(
+    video: Path,
+    layout: Path = Path("configs/hcl_rois.yaml"),
+    templates: Path = Path("configs/templates/hcl"),
+    interval: float = typer.Option(1.0, help="seconds between sampled frames"),
+    t_start: float = 0.0,
+    t_end: float = typer.Option(None, help="stop timestamp (s); default = full video"),
+) -> None:
+    """OCR the HUD stream into a HudSnapshot JSONL under data/hands."""
+    from pokertell.gamestate.extract import SnapshotExtractor, write_snapshots
+    from pokertell.gamestate.rois import load_layout
+
+    paths = default_paths().ensure()
+    extractor = SnapshotExtractor(
+        load_layout(layout), templates, unmatched_dir=paths.frames / "unmatched" / video.stem
+    )
+    snapshots = []
+    stats = None
+    for snap, stats in extractor.run(video, interval=interval, t_start=t_start, t_end=t_end):
+        snapshots.append(snap)
+        if stats.processed % 50 == 0:
+            typer.echo(
+                f"t={snap.t:8.1f}s sampled={stats.sampled} gated={stats.gated} "
+                f"processed={stats.processed}"
+            )
+    out = paths.hands / f"{video.stem}.snapshots.jsonl"
+    write_snapshots(snapshots, out)
+    if stats is None:
+        typer.echo("no frames processed; check the video path and time range")
+        raise typer.Exit(code=1)
+    typer.echo(
+        f"done: {stats.sampled} sampled, {stats.gated} gated out, "
+        f"{stats.processed} OCRed, {stats.unmatched_cards} unmatched card cells"
+    )
+    typer.echo(f"wrote {len(snapshots)} snapshots to {out}")
 
 
 @app.command("extract-behavior")

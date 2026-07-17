@@ -51,7 +51,13 @@ def street_from_board(board: list[str]) -> Street:
 
 @dataclass
 class HudSnapshot:
-    """Everything the HUD said at one sampled frame time t (seconds)."""
+    """Everything the HUD said at one sampled frame time t (seconds).
+
+    bets holds the amount shown in each player's action cell (their last
+    action's size as displayed, e.g. from 'BET $8,100' or 'CALL $100');
+    actions holds the raw action text; equities the broadcast's own win
+    percentages (a later cross-check for our card reads and labels).
+    """
 
     t: float
     pot: float | None = None
@@ -60,6 +66,11 @@ class HudSnapshot:
     bets: dict[str, float] = field(default_factory=dict)
     hole_cards: dict[str, list[str]] = field(default_factory=dict)
     to_act: str | None = None
+    to_call: float | None = None
+    positions: dict[str, str] = field(default_factory=dict)
+    actions: dict[str, str] = field(default_factory=dict)
+    equities: dict[str, float] = field(default_factory=dict)
+    blinds: list[float] = field(default_factory=list)
 
 
 @dataclass

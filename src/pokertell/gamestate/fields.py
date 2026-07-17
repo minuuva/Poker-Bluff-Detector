@@ -55,6 +55,8 @@ class PanelRead:
     action_amount: float | None = None
     to_call: float | None = None
     y_top: float = 0.0
+    name_box: TextBox | None = None
+    equity_box: TextBox | None = None
     raw: list[str] = field(default_factory=list)
 
 
@@ -108,11 +110,13 @@ def _fill_row1(panel: PanelRead, row: list[TextBox]) -> None:
         panel.raw.append(text)
         if PERCENT_RE.match(text):
             panel.equity_pct = float(text.rstrip("%"))
+            panel.equity_box = box
         elif len(text) >= 2 and any(c.isalpha() for c in text) and box.x < NAME_X_MAX:
             # Card-rank bleed-through ('10', 'K 9') is digits/single letters;
             # require a real word. Leftmost qualifying text wins.
-            if panel.name is None or box.x < min(b.x for b in row if b.text.strip() == panel.name):
+            if panel.name_box is None or box.x < panel.name_box.x:
                 panel.name = text
+                panel.name_box = box
 
 
 def _fill_row2(panel: PanelRead, row: list[TextBox]) -> None:
