@@ -4,9 +4,13 @@ Does nonverbal behavior add predictive power over betting action alone?
 An ablation study on broadcast poker footage, inspired by the AI bluff
 detector featured in ESPN's 2026 WSOP coverage.
 
-**Status: scaffold (day 0 of a one-week build).** Pipeline interfaces and the
-evaluation harness are in place; the OCR, behavior extraction, and demo
-stages land per the plan below.
+**Status: day 3 of a one-week build.** Game-state extraction works end to
+end on real footage: broadcast HUD OCR, card sprite recognition, and the
+hand-history assembler that folds the snapshot stream into Hand records
+with per-decision windows. 24 minutes of test footage across two sessions
+reconstructs into 16 hands with 112 decisions, 68 of them with exact
+action-on-player to action-committed windows. Behavior extraction, models,
+and the demo land per the plan below.
 
 ## The question
 

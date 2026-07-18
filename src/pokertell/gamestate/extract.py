@@ -186,3 +186,8 @@ def write_snapshots(snapshots: list[HudSnapshot], out_path: Path) -> None:
     with out_path.open("w") as f:
         for snap in snapshots:
             f.write(json.dumps(dataclasses.asdict(snap)) + "\n")
+
+
+def read_snapshots(path: Path) -> list[HudSnapshot]:
+    with Path(path).open() as f:
+        return [HudSnapshot(**json.loads(line)) for line in f if line.strip()]

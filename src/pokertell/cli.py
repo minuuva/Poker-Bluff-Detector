@@ -154,6 +154,30 @@ def extract_state(
     typer.echo(f"wrote {len(snapshots)} snapshots to {out}")
 
 
+@app.command()
+def assemble(snapshots_file: Path) -> None:
+    """Fold a snapshot JSONL into Hand records with decisions."""
+    import dataclasses
+    import json
+
+    from pokertell.gamestate.extract import read_snapshots
+    from pokertell.gamestate.statemachine import assemble_session
+
+    paths = default_paths().ensure()
+    session_id = snapshots_file.stem.replace(".snapshots", "")
+    snaps = read_snapshots(snapshots_file)
+    hands, report = assemble_session(snaps, session_id)
+
+    out = paths.hands / f"{session_id}.hands.jsonl"
+    with out.open("w") as f:
+        for hand in hands:
+            f.write(json.dumps(dataclasses.asdict(hand)) + "\n")
+
+    for key, value in report.items():
+        typer.echo(f"{key}: {value}")
+    typer.echo(f"wrote {len(hands)} hands to {out}")
+
+
 @app.command("extract-behavior")
 def extract_behavior() -> None:
     """Extract face/pose features over decision windows (day 4)."""
