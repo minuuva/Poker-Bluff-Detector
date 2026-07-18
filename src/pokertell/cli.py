@@ -179,9 +179,27 @@ def assemble(snapshots_file: Path) -> None:
 
 
 @app.command("extract-behavior")
-def extract_behavior() -> None:
-    """Extract face/pose features over decision windows (day 4)."""
-    _todo("extract-behavior", "day 4")
+def extract_behavior(
+    video: Path,
+    hands_file: Path,
+    seats: Path,
+) -> None:
+    """Extract face/pose features over decision windows into data/features."""
+    from pokertell.behavior.extract import extract_session_behavior
+
+    paths = default_paths().ensure()
+    session_id = hands_file.stem.replace(".hands", "")
+
+    def progress(row: dict) -> None:
+        typer.echo(
+            f"{row['hand_id']} {row['player'][:14]:14s} window={row['window_s']:6.1f}s "
+            f"face_cov={row.get('face_coverage', 0):.2f} pose_cov={row.get('pose_coverage', 0):.2f}"
+        )
+
+    df = extract_session_behavior(video, hands_file, seats, progress=progress)
+    out = paths.features / f"{session_id}.behavior.csv"
+    df.to_csv(out, index=False)
+    typer.echo(f"wrote {len(df)} rows to {out}")
 
 
 @app.command()

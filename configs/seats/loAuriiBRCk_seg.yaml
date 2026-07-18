@@ -1,0 +1,24 @@
+# Seat map for session loAuriiBRCk_seg (Feb 2026).
+#
+# Each player maps to a list of camera-angle views: shot_t is a reference
+# timestamp whose frame identifies the angle (top-half thumbnail signature),
+# and the box is the player's upper body plus hands in that angle, pixels
+# on the 1920x1080 frame.
+#
+# SUITEDSUPERMAN identified by physical action evidence: his hand pushes
+# chips at exactly t=303, the second his panel flips to ALL IN $10,175.
+# View 1 is the frequent center-framing angle (shot cluster rep t=510);
+# view 2 is the two-shot used during the t=275-305 all-in sequence.
+
+seats:
+  SUITEDSUPERMAN:
+    - shot_t: 510.0
+      x: 980
+      y: 20
+      w: 820
+      h: 900
+    - shot_t: 301.0
+      x: 960
+      y: 40
+      w: 840
+      h: 1000

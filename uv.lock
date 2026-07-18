@@ -1088,6 +1088,7 @@ name = "pokertell"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "certifi" },
     { name = "eval7" },
     { name = "matplotlib" },
     { name = "mediapipe" },
@@ -1117,6 +1118,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2026.6.17" },
     { name = "eval7", specifier = ">=0.1.10" },
     { name = "matplotlib", specifier = ">=3.9" },
     { name = "mediapipe", specifier = ">=0.10.14" },

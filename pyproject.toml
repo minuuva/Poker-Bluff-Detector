@@ -17,6 +17,7 @@ dependencies = [
     "mediapipe>=0.10.14",
     "yt-dlp>=2025.1.15",
     "matplotlib>=3.9",
+    "certifi>=2026.6.17",
 ]
 
 [project.optional-dependencies]
