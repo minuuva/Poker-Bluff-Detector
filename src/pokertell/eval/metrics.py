@@ -12,22 +12,37 @@ import numpy as np
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 
+def single_report(y_true: np.ndarray, p: np.ndarray) -> dict:
+    """Metrics for one model's predictions. AUC is NaN if y is single-class."""
+    y_true = np.asarray(y_true)
+    single = len(np.unique(y_true)) < 2
+    return {
+        "auc": float("nan") if single else float(roc_auc_score(y_true, p)),
+        "logloss": float(log_loss(y_true, p, labels=[0, 1])),
+        "brier": float(brier_score_loss(y_true, p)),
+        "n": int(len(y_true)),
+        "base_rate": float(np.mean(y_true)),
+    }
+
+
 def ablation_report(
     y_true: np.ndarray,
     p_base: np.ndarray,
     p_full: np.ndarray,
 ) -> dict:
     """Compare baseline and behavior-augmented predictions on the same test set."""
+    base = single_report(y_true, p_base)
+    full = single_report(y_true, p_full)
     return {
-        "auc_base": float(roc_auc_score(y_true, p_base)),
-        "auc_full": float(roc_auc_score(y_true, p_full)),
-        "delta_auc": float(roc_auc_score(y_true, p_full) - roc_auc_score(y_true, p_base)),
-        "logloss_base": float(log_loss(y_true, p_base)),
-        "logloss_full": float(log_loss(y_true, p_full)),
-        "brier_base": float(brier_score_loss(y_true, p_base)),
-        "brier_full": float(brier_score_loss(y_true, p_full)),
-        "n": int(len(y_true)),
-        "base_rate": float(np.mean(y_true)),
+        "auc_base": base["auc"],
+        "auc_full": full["auc"],
+        "delta_auc": full["auc"] - base["auc"],
+        "logloss_base": base["logloss"],
+        "logloss_full": full["logloss"],
+        "brier_base": base["brier"],
+        "brier_full": full["brier"],
+        "n": base["n"],
+        "base_rate": base["base_rate"],
     }
 
 

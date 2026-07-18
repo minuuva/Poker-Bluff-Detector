@@ -46,6 +46,9 @@ def equity_vs_random(
     Splits count as half a win. Accurate to roughly +/- 0.02 at the default
     trial count, which is enough for class labeling.
     """
+    known = list(hole) + list(board)
+    if len(set(known)) != len(known):
+        raise ValueError(f"duplicate cards in hole+board: {known}")
     rng = random.Random(seed)
     evaluator = Evaluator()
     hero = [Card.new(c) for c in hole]

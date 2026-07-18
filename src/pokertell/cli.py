@@ -204,14 +204,96 @@ def extract_behavior(
 
 @app.command()
 def label() -> None:
-    """Compute equity and strength-class labels from exposed hole cards (day 5)."""
-    _todo("label", "day 5")
+    """Build labeled decision tables from every hands file in data/hands."""
+    import json
+
+    from pokertell.labels.build import build_decision_table
+
+    paths = default_paths().ensure()
+    hands_files = sorted(paths.hands.glob("*.hands.jsonl"))
+    if not hands_files:
+        typer.echo("no hands files found; run extract-state and assemble first")
+        raise typer.Exit(code=1)
+    for hands_file in hands_files:
+        session_id = hands_file.stem.replace(".hands", "")
+        hands = [json.loads(line) for line in hands_file.open()]
+        df = build_decision_table(hands)
+        out = paths.features / f"{session_id}.decisions.csv"
+        df.to_csv(out, index=False)
+        labeled = int(df["equity_mc"].notna().sum())
+        typer.echo(f"{session_id}: {len(df)} decisions, {labeled} with equity labels -> {out}")
 
 
 @app.command()
-def train() -> None:
-    """Fit the betting-only baseline and the behavior-augmented model (day 5)."""
-    _todo("train", "day 5")
+def train(
+    target: str = typer.Option("is_bluff", help="is_bluff (aggressive only) or is_weak"),
+    model: str = typer.Option("logreg", help="logreg or xgb"),
+    min_coverage: float = typer.Option(0.5, help="min face/pose coverage for ablation rows"),
+    min_ablation_rows: int = typer.Option(30, help="min behavior rows to attempt ablation"),
+) -> None:
+    """Fit the betting-only baseline; run the ablation where behavior exists."""
+    import pandas as pd
+
+    from pokertell.behavior.face import FACE_FEATURES
+    from pokertell.behavior.features import zscore_per_player
+    from pokertell.behavior.pose import POSE_FEATURES
+    from pokertell.models.baseline import BETTING_FEATURES
+    from pokertell.models.train import loso_ablation, loso_baseline
+
+    paths = default_paths().ensure()
+    dec_files = sorted(paths.features.glob("*.decisions.csv"))
+    if not dec_files:
+        typer.echo("no decision tables found; run label first")
+        raise typer.Exit(code=1)
+    df = pd.concat([pd.read_csv(f) for f in dec_files], ignore_index=True)
+
+    beh_files = sorted(paths.features.glob("*.behavior.csv"))
+    behavior_cols = FACE_FEATURES + POSE_FEATURES
+    if beh_files:
+        beh = pd.concat([pd.read_csv(f) for f in beh_files], ignore_index=True)
+        df = df.merge(
+            beh.drop(columns=["t_start", "window_s", "n_frames"], errors="ignore"),
+            on=["hand_id", "player", "t_end"],
+            how="left",
+        )
+        df = zscore_per_player(df, [c for c in behavior_cols if c in df.columns])
+
+    labeled = df[df[target].notna()].copy()
+    typer.echo(
+        f"decisions: {len(df)} total, {len(labeled)} labeled for {target} "
+        f"(base rate {labeled[target].mean():.2f}) across "
+        f"{labeled['session_id'].nunique()} sessions"
+    )
+
+    typer.echo("\n== betting-only baseline (LOSO) ==")
+    base = loso_baseline(labeled, target, BETTING_FEATURES, model_kind=model)
+    for k, v in base.items():
+        typer.echo(f"  {k}: {v}")
+
+    coverage = df.get("face_coverage")
+    covered = (
+        labeled[
+            (labeled.get("face_coverage", 0).fillna(0) >= min_coverage)
+            | (labeled.get("pose_coverage", 0).fillna(0) >= min_coverage)
+        ]
+        if coverage is not None
+        else labeled.iloc[0:0]
+    )
+    typer.echo(
+        f"\nbehavior-covered labeled decisions: {len(covered)} "
+        f"(need {min_ablation_rows} for the ablation)"
+    )
+    if len(covered) >= min_ablation_rows and covered[target].nunique() == 2:
+        typer.echo("\n== ablation: baseline vs baseline+behavior (LOSO) ==")
+        cols = [c for c in behavior_cols if c in covered.columns]
+        result = loso_ablation(covered, target, BETTING_FEATURES, cols, model_kind=model)
+        for k, v in result.items():
+            typer.echo(f"  {k}: {v}")
+    else:
+        typer.echo(
+            "ablation skipped: not enough behavior-covered rows yet. The honest "
+            "path is more footage and more seat maps, not a smaller bar."
+        )
 
 
 @app.command()
