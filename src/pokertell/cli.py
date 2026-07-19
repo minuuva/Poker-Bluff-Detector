@@ -232,32 +232,13 @@ def train(
     min_ablation_rows: int = typer.Option(30, help="min behavior rows to attempt ablation"),
 ) -> None:
     """Fit the betting-only baseline; run the ablation where behavior exists."""
-    import pandas as pd
-
-    from pokertell.behavior.face import FACE_FEATURES
-    from pokertell.behavior.features import zscore_per_player
-    from pokertell.behavior.pose import POSE_FEATURES
+    from pokertell.dataset import BEHAVIOR_FEATURES as behavior_cols
+    from pokertell.dataset import load_dataset
     from pokertell.models.baseline import BETTING_FEATURES
     from pokertell.models.train import loso_ablation, loso_baseline
 
     paths = default_paths().ensure()
-    dec_files = sorted(paths.features.glob("*.decisions.csv"))
-    if not dec_files:
-        typer.echo("no decision tables found; run label first")
-        raise typer.Exit(code=1)
-    df = pd.concat([pd.read_csv(f) for f in dec_files], ignore_index=True)
-
-    beh_files = sorted(paths.features.glob("*.behavior.csv"))
-    behavior_cols = FACE_FEATURES + POSE_FEATURES
-    if beh_files:
-        beh = pd.concat([pd.read_csv(f) for f in beh_files], ignore_index=True)
-        df = df.merge(
-            beh.drop(columns=["t_start", "window_s", "n_frames"], errors="ignore"),
-            on=["hand_id", "player", "t_end"],
-            how="left",
-        )
-        df = zscore_per_player(df, [c for c in behavior_cols if c in df.columns])
-
+    df = load_dataset(paths)
     labeled = df[df[target].notna()].copy()
     typer.echo(
         f"decisions: {len(df)} total, {len(labeled)} labeled for {target} "
@@ -297,9 +278,30 @@ def train(
 
 
 @app.command()
-def report() -> None:
-    """Produce the ablation report with bootstrap CIs and calibration (day 6)."""
-    _todo("report", "day 6")
+def report(
+    target: str = typer.Option("is_bluff", help="is_bluff (aggressive only) or is_weak"),
+    model: str = typer.Option("logreg", help="logreg or xgb"),
+    min_coverage: float = 0.5,
+    min_ablation_rows: int = 30,
+) -> None:
+    """Produce the results report: metrics, bootstrap CIs, calibration plot."""
+    from pokertell.dataset import BEHAVIOR_FEATURES, load_dataset
+    from pokertell.eval.report import build_report
+    from pokertell.models.baseline import BETTING_FEATURES
+
+    paths = default_paths().ensure()
+    df = load_dataset(paths)
+    result = build_report(
+        df,
+        target=target,
+        base_cols=BETTING_FEATURES,
+        behavior_cols=BEHAVIOR_FEATURES,
+        out_dir=paths.reports,
+        model_kind=model,
+        min_coverage=min_coverage,
+        min_ablation_rows=min_ablation_rows,
+    )
+    typer.echo(Path(result["report_path"]).read_text())
 
 
 @app.command()

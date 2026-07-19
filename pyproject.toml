@@ -18,6 +18,7 @@ dependencies = [
     "yt-dlp>=2025.1.15",
     "matplotlib>=3.9",
     "certifi>=2026.6.17",
+    "tabulate>=0.10.0",
 ]
 
 [project.optional-dependencies]
