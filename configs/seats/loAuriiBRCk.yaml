@@ -1,23 +1,26 @@
 # Seat map for session loAuriiBRCk (Feb 2026, "Alex Foxen, Suited Superman
 # & Nik Airball").
 #
-# SUITEDSUPERMAN views carry over from the validated segment map
-# (loAuriiBRCk_seg.yaml); the segment began at 01:30:00, so shot_t values
-# shift by +5400 s. Identification evidence: chip push at the exact second
-# his panel flipped to ALL IN $10,175.
+# v2 schema: per player, a generous search region covering every zoom level
+# of the shots that frame them, plus face-chip reference timestamps with the
+# approximate face center x (full-frame px) to disambiguate multi-face
+# frames.
 #
-# AIRBALL views get added after this session's hands assemble (commit
-# moment identification pass).
+# SUITEDSUPERMAN is the man in glasses and a gray CoinPoker t-shirt:
+# his panel flips to ALL IN $10,175 at t~5697 exactly as he reaches into
+# his chips, and after losing that flip he is standing behind the table
+# by t=5913. The old v1 map also credited him with the shot at t=5910,
+# but the HUD there shows a hand he is not in (Foxen/Francisco/Airball)
+# and the face at that spot is a different player in a blue Puma hoodie;
+# that reference is dropped.
+#
+# More SUPERMAN refs plus AIRBALL refs get added after this session's
+# hands assemble (commit-moment identification pass); Airball's Feb look
+# may differ from the Jul session.
 
 seats:
   SUITEDSUPERMAN:
-    - shot_t: 5910.0
-      x: 980
-      y: 20
-      w: 820
-      h: 900
-    - shot_t: 5701.0
-      x: 960
-      y: 40
-      w: 840
-      h: 1000
+    search: {x: 850, y: 0, w: 1070, h: 900}
+    face_refs:
+      - {t: 5692.0, cx: 1400}
+      - {t: 5701.0, cx: 1336}
