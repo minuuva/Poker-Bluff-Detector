@@ -193,9 +193,12 @@ def summarize_pose(
 
 
 class PoseTracker:
-    """Run MediaPipe Pose Landmarker over a frame sequence (one seat crop).
+    """Run MediaPipe Pose Landmarker on per-frame crops.
 
-    Create one per decision window (VIDEO mode needs increasing timestamps).
+    IMAGE mode (stateless): the crop follows the identified face across
+    zooming, panning cameras, so there is no temporally consistent image
+    stream for VIDEO-mode tracking to exploit. Landmarks are returned in
+    the crop's pixel coordinates; callers map them to a common frame.
     """
 
     def __init__(self) -> None:
@@ -210,17 +213,17 @@ class PoseTracker:
             base_options=BaseOptions(
                 model_asset_path=str(ensure_model("pose_landmarker_lite.task"))
             ),
-            running_mode=vision.RunningMode.VIDEO,
+            running_mode=vision.RunningMode.IMAGE,
             num_poses=1,
         )
         self._landmarker = vision.PoseLandmarker.create_from_options(options)
 
-    def process(self, frame_bgr: np.ndarray, t_ms: int) -> np.ndarray | None:
+    def process(self, frame_bgr: np.ndarray, t_ms: int = 0) -> np.ndarray | None:
         """(33, 3) array of (x_px, y_px, visibility) for one pose, or None."""
         h, w = frame_bgr.shape[:2]
         rgb = frame_bgr[..., ::-1].copy()
         image = self._mp.Image(image_format=self._mp.ImageFormat.SRGB, data=rgb)
-        result = self._landmarker.detect_for_video(image, t_ms)
+        result = self._landmarker.detect(image)
         if not result.pose_landmarks:
             return None
         lm = result.pose_landmarks[0]

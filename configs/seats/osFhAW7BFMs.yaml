@@ -1,0 +1,21 @@
+# Seat map for session osFhAW7BFMs (Jul 2026, "Britney, Nik Airball & Wolfgang").
+#
+# v2 schema: per player, a search region (generous, covers all zoom levels
+# of the shots that frame them) and face-chip reference timestamps with the
+# approximate face center x (full-frame px) to disambiguate multi-face
+# frames. Chips build at extractor init and gate every attribution.
+#
+# AIRBALL identified by commit-moment evidence: reaches into his chips at
+# t=6225 exactly as his panel flips to RAISE $1,200; appears centered with
+# the same shaved-head-plus-sunglasses look at every action moment.
+# t=6225 is deliberately NOT a reference (a neighbor's face is nearer the
+# center there).
+
+seats:
+  AIRBALL:
+    search: {x: 350, y: 0, w: 1300, h: 760}
+    face_refs:
+      - {t: 6280.0, cx: 1050}
+      - {t: 6328.0, cx: 1050}
+      - {t: 6495.0, cx: 1050}
+      - {t: 6728.0, cx: 1050}

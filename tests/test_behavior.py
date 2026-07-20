@@ -117,16 +117,6 @@ def test_summarize_pose_no_pose_gives_nan():
     assert np.isnan(out["lean_std"])
 
 
-def test_shot_signature_is_normalized_and_matches_self():
-    from pokertell.behavior.extract import shot_signature
-
-    rng = np.random.default_rng(0)
-    frame = rng.integers(0, 255, (1080, 1920, 3), dtype=np.uint8)
-    sig = shot_signature(frame)
-    assert abs(sig.mean()) < 1e-9
-    assert abs(np.dot(sig, sig) / len(sig) - 1.0) < 1e-6
-
-
 def test_load_seats_schema(tmp_path):
     from pokertell.behavior.extract import load_seats
 
@@ -134,10 +124,25 @@ def test_load_seats_schema(tmp_path):
     p.write_text(
         "seats:\n"
         "  PLAYERX:\n"
-        "    - {shot_t: 12.0, x: 10, y: 20, w: 300, h: 400}\n"
-        "    - {shot_t: 99.0, x: 5, y: 5, w: 100, h: 100}\n"
+        "    search: {x: 10, y: 20, w: 300, h: 400}\n"
+        "    face_refs:\n"
+        "      - {t: 12.0, cx: 500}\n"
+        "      - {t: 99.0, cx: 640}\n"
     )
     seats = load_seats(p)
-    assert len(seats["PLAYERX"]) == 2
-    assert seats["PLAYERX"][0].shot_t == 12.0
-    assert seats["PLAYERX"][1].w == 100
+    assert seats["PLAYERX"].search == (10, 20, 300, 400)
+    assert len(seats["PLAYERX"].face_refs) == 2
+    assert seats["PLAYERX"].face_refs[0]["t"] == 12.0
+
+
+def test_face_chip_and_similarity():
+    import numpy as np
+
+    from pokertell.behavior.extract import CHIP_SIZE, chip_similarity, face_chip
+
+    rng = np.random.default_rng(0)
+    crop = rng.integers(0, 255, (400, 400, 3), dtype=np.uint8)
+    chip = face_chip(crop, (100, 100, 120, 130))
+    assert chip is not None and chip.shape == (CHIP_SIZE, CHIP_SIZE)
+    assert chip_similarity(chip, chip) > 0.99
+    assert face_chip(crop, (10, 10, 30, 30)) is None  # below MIN_FACE_W

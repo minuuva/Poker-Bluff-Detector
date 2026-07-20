@@ -528,6 +528,23 @@ def assemble_hand(span: list[HudSnapshot], session_id: str, index: int) -> Hand:
     )
 
 
+def _is_off_session(hand: Hand, mode_blinds: tuple, has_pot: bool) -> bool:
+    """True for hands that are not part of this session's actual game.
+
+    Full stream VODs carry a preroll countdown screen (and sometimes break
+    screens) that replay OLD sessions in a small inset window. The inset's
+    miniature HUD partially OCRs into well-formed but foreign hands. Two
+    tells identify them: the fixed pot ROI never reads (the inset's pot
+    renders elsewhere), and the blinds do not match the session's modal
+    stakes.
+    """
+    if not has_pot:
+        return True
+    if hand.blinds and mode_blinds and tuple(hand.blinds[:2]) != tuple(mode_blinds[:2]):
+        return True
+    return False
+
+
 def assemble_session(
     snaps: list[HudSnapshot], session_id: str
 ) -> tuple[list[Hand], dict]:
@@ -537,11 +554,30 @@ def assemble_session(
     normalized = normalize_snapshots(snaps, resolver)
     spans = merge_spans(segment_hands(normalized))
     hands = [assemble_hand(span, session_id, i + 1) for i, span in enumerate(spans)]
-    for hand in hands:
+
+    pot_by_hand = {
+        h.hand_id: any(
+            s.pot is not None for span in [spans[i]] for s in span
+        )
+        for i, h in enumerate(hands)
+    }
+    blind_votes = Counter(tuple(h.blinds[:2]) for h in hands if len(h.blinds) >= 2)
+    mode_blinds = blind_votes.most_common(1)[0][0] if blind_votes else ()
+    kept = [
+        h for h in hands if not _is_off_session(h, mode_blinds, pot_by_hand[h.hand_id])
+    ]
+    n_off = len(hands) - len(kept)
+    hands = kept
+    for i, hand in enumerate(hands):
+        hand.hand_id = f"{session_id}#{i + 1:04d}"
+        for d in hand.decisions:
+            d.hand_id = hand.hand_id
         hand.display_names = {p: resolver.display(p) for p in hand.players}
 
     report = {
         "snapshots": len(snaps),
+        "off_session_hands_dropped": n_off,
+        "session_blinds": list(mode_blinds),
         "hands": len(hands),
         "decisions": sum(len(h.decisions) for h in hands),
         "decisions_to_act": sum(

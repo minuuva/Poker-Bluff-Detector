@@ -109,28 +109,32 @@ class FaceTracker:
             base_options=BaseOptions(model_asset_path=str(ensure_model("face_landmarker.task"))),
             running_mode=vision.RunningMode.VIDEO,
             output_face_blendshapes=True,
-            num_faces=1,
+            num_faces=3,
         )
         self._landmarker = vision.FaceLandmarker.create_from_options(options)
 
     def process(
         self, frame_bgr: np.ndarray, t_ms: int
-    ) -> tuple[dict[str, float], float] | None:
-        """(blendshapes, face_height_fraction) for one face, or None.
+    ) -> list[tuple[dict[str, float], tuple[int, int, int, int]]]:
+        """All detected faces as (blendshapes, bbox_px) in crop coordinates.
 
-        The height fraction lets callers reject implausible detections:
-        camera cutaways put fragments of a giant closeup face inside the
-        seat crop, and those must not be attributed to the seated player.
+        Callers decide which face (if any) belongs to the target player;
+        identity gating happens on the face chip, not here. Note the
+        underlying detector is short-range: faces must be large relative to
+        the input, so feed crops, not full frames.
         """
+        h, w = frame_bgr.shape[:2]
         rgb = frame_bgr[..., ::-1].copy()
         image = self._mp.Image(image_format=self._mp.ImageFormat.SRGB, data=rgb)
         result = self._landmarker.detect_for_video(image, t_ms)
-        if not result.face_blendshapes or not result.face_landmarks:
-            return None
-        ys = [p.y for p in result.face_landmarks[0]]
-        height_frac = max(ys) - min(ys)
-        shapes = {c.category_name: c.score for c in result.face_blendshapes[0]}
-        return shapes, float(height_frac)
+        out = []
+        for landmarks, blend in zip(result.face_landmarks, result.face_blendshapes):
+            xs = [p.x * w for p in landmarks]
+            ys = [p.y * h for p in landmarks]
+            bbox = (int(min(xs)), int(min(ys)), int(max(xs) - min(xs)), int(max(ys) - min(ys)))
+            shapes = {c.category_name: c.score for c in blend}
+            out.append((shapes, bbox))
+        return out
 
     def close(self) -> None:
         self._landmarker.close()

@@ -1,26 +1,28 @@
 """Behavioral feature extraction over decision windows.
 
-For each Decision of a seat-mapped player, reads the window's frames, crops
-the player's seat region, runs face and pose tracking, and emits one row of
-behavioral features. Output joins with betting features on (hand_id,
+For each Decision of a mapped player, reads the window's frames, finds the
+player by FACE RE-IDENTIFICATION, and runs face and pose tracking into one
+feature row per decision. Output joins with betting features on (hand_id,
 player, t_end).
 
-Identity is the hard part of this stage. HCL has no master wide shot: the
-broadcast cycles through fixed camera angles, each framing 2-3 seats, plus
-graphics and replays. A seat crop is therefore only valid in its angle, so
-the per-session seat map (configs/seats/<session>.yaml) gives each target
-player a LIST of views: a reference timestamp identifying the camera angle
-plus the player's bbox in that angle. At extraction time every frame is
-matched against the angle signatures (correlation of the frame's top-half
-thumbnail, where the static camera background dominates and the HUD does
-not reach) and only matching frames contribute, with the matched view's
-box. Two further gates keep bad frames out: face detections must be a
-plausible size for the crop, and every row records face/pose coverage so
-low-coverage windows can be filtered downstream.
+Identity design (v2): HCL's cameras are operated: they zoom and pan, so
+camera-angle signatures do not survive contact with real footage. What is
+stable within a session is the player's own appearance. The seat map gives
+each player a search region and a few reference timestamps; at init the
+extractor builds equalized grayscale face chips from those references, and
+at extraction time every detected face's chip must correlate with the
+player's references above CHIP_MATCH_THRESH to be attributed (measured
+separation on real footage: same player ~0.74, different players ~0.25).
+The pose crop then follows the accepted face, which makes the pipeline
+zoom-proof. Rows record chip/face/pose coverage for downstream filters.
+
+Caveat recorded honestly: mid-window zoom changes distort pixel
+trajectories; wrist speeds are shoulder-width normalized, and the
+amplitude-invariant smoothness metrics limit but do not eliminate this.
 """
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import cv2
@@ -31,78 +33,102 @@ import yaml
 from pokertell.behavior.face import FaceTracker, summarize_blendshapes
 from pokertell.behavior.pose import PoseTracker, summarize_pose
 
-FACE_MIN_H_FRAC = 0.10
-FACE_MAX_H_FRAC = 0.65
+CHIP_SIZE = 48
+CHIP_MATCH_THRESH = 0.55
+MIN_FACE_W = 60
 WINDOW_PRE_PAD_S = 0.5
 COMMIT_PAD_S = 2.0
 COMMIT_SEGMENT_S = 6.0
 MAX_WINDOW_S = 90.0
-FACE_FRAME_STRIDE = 2
-SHOT_MATCH_THRESH = 0.62
-SIG_SIZE = (48, 15)
-SIG_TOP_FRAC = 0.55
+FACE_STRIDE = 2
 
 
-@dataclass(frozen=True)
-class SeatView:
-    """One camera angle in which a player is visible."""
+@dataclass
+class PlayerRef:
+    """Search region plus face-chip references for one player."""
 
-    shot_t: float
-    x: int
-    y: int
-    w: int
-    h: int
+    search: tuple[int, int, int, int]
+    face_refs: list[dict]
+    chips: list[np.ndarray] = field(default_factory=list)
 
 
-def load_seats(path: Path) -> dict[str, list[SeatView]]:
+def load_seats(path: Path) -> dict[str, PlayerRef]:
     raw = yaml.safe_load(Path(path).read_text())
-    return {
-        name: [SeatView(**view) for view in views]
-        for name, views in raw.get("seats", {}).items()
-    }
+    out = {}
+    for name, spec in raw.get("seats", {}).items():
+        s = spec["search"]
+        out[name] = PlayerRef(
+            search=(s["x"], s["y"], s["w"], s["h"]),
+            face_refs=list(spec.get("face_refs", [])),
+        )
+    return out
 
 
-def shot_signature(frame: np.ndarray) -> np.ndarray:
-    """Normalized thumbnail of the frame's top half (camera-angle identity)."""
-    top = frame[: int(frame.shape[0] * SIG_TOP_FRAC)]
-    g = cv2.cvtColor(top, cv2.COLOR_BGR2GRAY)
-    s = cv2.resize(g, SIG_SIZE).astype(float).ravel()
-    return (s - s.mean()) / (s.std() + 1e-9)
+def face_chip(crop_bgr: np.ndarray, bbox: tuple[int, int, int, int]) -> np.ndarray | None:
+    """Equalized grayscale chip for a detected face bbox (crop coords)."""
+    x, y, w, h = bbox
+    if w < MIN_FACE_W:
+        return None
+    pad = int(0.15 * w)
+    x0, y0 = max(0, x - pad), max(0, y - pad)
+    x1 = min(crop_bgr.shape[1], x + w + pad)
+    y1 = min(crop_bgr.shape[0], y + h + pad)
+    if x1 - x0 < 24 or y1 - y0 < 24:
+        return None
+    gray = cv2.cvtColor(crop_bgr[y0:y1, x0:x1], cv2.COLOR_BGR2GRAY)
+    return cv2.equalizeHist(cv2.resize(gray, (CHIP_SIZE, CHIP_SIZE)))
+
+
+def chip_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    return float(cv2.matchTemplate(a, b, cv2.TM_CCOEFF_NORMED).max())
 
 
 class BehaviorExtractor:
-    def __init__(self, video: Path, seats: dict[str, list[SeatView]]) -> None:
+    def __init__(self, video: Path, seats: dict[str, PlayerRef]) -> None:
         self.video = Path(video)
         self.seats = seats
         self.cap = cv2.VideoCapture(str(video))
         self.fps = self.cap.get(cv2.CAP_PROP_FPS) or 30.0
-        self._signatures: dict[float, np.ndarray] = {}
-        for views in seats.values():
-            for view in views:
-                if view.shot_t not in self._signatures:
-                    self.cap.set(cv2.CAP_PROP_POS_MSEC, view.shot_t * 1000)
+        self._build_reference_chips()
+
+    def _build_reference_chips(self) -> None:
+        face = FaceTracker()
+        try:
+            for name, ref in self.seats.items():
+                for spec in ref.face_refs:
+                    self.cap.set(cv2.CAP_PROP_POS_MSEC, float(spec["t"]) * 1000)
                     ok, frame = self.cap.read()
                     if not ok:
-                        raise ValueError(f"cannot read reference frame at t={view.shot_t}")
-                    self._signatures[view.shot_t] = shot_signature(frame)
+                        continue
+                    crop = self._search_crop(frame, ref)
+                    faces = face.process(crop, int(spec["t"] * 1000))
+                    if not faces:
+                        continue
+                    sx = ref.search[0]
+                    target_cx = float(spec["cx"]) - sx
+                    _, bbox = min(
+                        faces, key=lambda fb: abs(fb[1][0] + fb[1][2] / 2 - target_cx)
+                    )
+                    chip = face_chip(crop, bbox)
+                    if chip is not None:
+                        ref.chips.append(chip)
+                if not ref.chips:
+                    raise ValueError(f"no reference chips built for {name}")
+        finally:
+            face.close()
+
+    @staticmethod
+    def _search_crop(frame: np.ndarray, ref: PlayerRef) -> np.ndarray:
+        x, y, w, h = ref.search
+        return frame[y : y + h, x : x + w]
 
     def close(self) -> None:
         self.cap.release()
 
-    def _match_view(self, frame: np.ndarray, views: list[SeatView]) -> SeatView | None:
-        sig = shot_signature(frame)
-        best, best_corr = None, SHOT_MATCH_THRESH
-        for view in views:
-            ref = self._signatures[view.shot_t]
-            corr = float(np.dot(ref, sig) / len(sig))
-            if corr > best_corr:
-                best, best_corr = view, corr
-        return best
-
     def extract_decision(self, decision: dict) -> dict | None:
         player = decision["player"]
-        views = self.seats.get(player)
-        if not views:
+        ref = self.seats.get(player)
+        if ref is None:
             return None
         t1 = decision["t_end"] + COMMIT_PAD_S
         t0 = max(0.0, decision["t_start"] - WINDOW_PRE_PAD_S)
@@ -114,7 +140,8 @@ class BehaviorExtractor:
         blend_frames: list[dict | None] = []
         pose_frames: list[np.ndarray | None] = []
         n = 0
-        n_shot_matched = 0
+        n_identified = 0
+        last_bbox: tuple[int, int, int, int] | None = None
         try:
             self.cap.set(cv2.CAP_PROP_POS_MSEC, t0 * 1000)
             while True:
@@ -122,22 +149,39 @@ class BehaviorExtractor:
                 ok, frame = self.cap.read()
                 if not ok or t > t1:
                     break
-                t_ms = int(t * 1000)
-                view = self._match_view(frame, views)
-                crop = None
-                if view is not None:
-                    n_shot_matched += 1
-                    crop = frame[view.y : view.y + view.h, view.x : view.x + view.w]
-                if n % FACE_FRAME_STRIDE == 0:
+                crop = self._search_crop(frame, ref)
+                run_face = n % FACE_STRIDE == 0
+                accepted_bbox = None
+                if run_face:
                     shapes = None
-                    if crop is not None:
-                        hit = face.process(crop, t_ms)
-                        if hit is not None:
-                            s, h_frac = hit
-                            if FACE_MIN_H_FRAC <= h_frac <= FACE_MAX_H_FRAC:
-                                shapes = s
+                    for cand_shapes, bbox in face.process(crop, int(t * 1000)):
+                        chip = face_chip(crop, bbox)
+                        if chip is None:
+                            continue
+                        score = max(chip_similarity(chip, c) for c in ref.chips)
+                        if score >= CHIP_MATCH_THRESH:
+                            shapes, accepted_bbox = cand_shapes, bbox
+                            break
                     blend_frames.append(shapes)
-                pose_frames.append(pose.process(crop, t_ms) if crop is not None else None)
+                    if accepted_bbox is not None:
+                        n_identified += 1
+                        last_bbox = accepted_bbox
+                # Pose follows the most recent identified face.
+                if last_bbox is not None:
+                    x, y, w, h = last_bbox
+                    px0 = max(0, x - int(1.6 * w))
+                    py0 = max(0, y - int(0.6 * h))
+                    px1 = min(crop.shape[1], x + w + int(1.6 * w))
+                    py1 = min(crop.shape[0], y + h + int(3.2 * h))
+                    sub = crop[py0:py1, px0:px1]
+                    lm = pose.process(sub)
+                    if lm is not None:
+                        lm = lm.copy()
+                        lm[:, 0] += px0
+                        lm[:, 1] += py0
+                    pose_frames.append(lm)
+                else:
+                    pose_frames.append(None)
                 n += 1
         finally:
             face.close()
@@ -145,9 +189,10 @@ class BehaviorExtractor:
         if n == 0:
             return None
 
-        face_feats = summarize_blendshapes(blend_frames, self.fps / FACE_FRAME_STRIDE)
+        face_feats = summarize_blendshapes(blend_frames, self.fps / FACE_STRIDE)
         commit_frames = min(n, int(COMMIT_SEGMENT_S * self.fps))
         pose_feats = summarize_pose(pose_frames, self.fps, commit_frames)
+        n_face_frames = max(1, len(blend_frames))
         return {
             "hand_id": decision["hand_id"],
             "player": player,
@@ -155,7 +200,7 @@ class BehaviorExtractor:
             "t_end": decision["t_end"],
             "window_s": round(t1 - t0, 2),
             "n_frames": n,
-            "shot_coverage": round(n_shot_matched / n, 3),
+            "shot_coverage": round(n_identified / n_face_frames, 3),
             **face_feats,
             **pose_feats,
         }
@@ -167,7 +212,7 @@ def extract_session_behavior(
     seats_path: Path,
     progress=None,
 ) -> pd.DataFrame:
-    """One row of behavioral features per seat-mapped decision."""
+    """One row of behavioral features per mapped decision."""
     seats = load_seats(seats_path)
     hands = [json.loads(line) for line in Path(hands_path).open()]
     extractor = BehaviorExtractor(video, seats)
