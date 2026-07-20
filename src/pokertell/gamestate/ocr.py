@@ -97,6 +97,10 @@ class HudReader:
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
             use_textline_orientation=False,
+            # oneDNN's PIR path crashes CPU inference on x86 Linux
+            # (ConvertPirAttribute2RuntimeAttribute NotImplementedError);
+            # harmless elsewhere since oneDNN is x86-only.
+            enable_mkldnn=False,
         )
         if tier != "medium":
             kwargs["text_detection_model_name"] = f"PP-OCRv6_{tier}_det"
