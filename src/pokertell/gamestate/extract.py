@@ -149,8 +149,12 @@ class SnapshotExtractor:
         interval: float = 1.0,
         t_start: float = 0.0,
         t_end: float | None = None,
-    ) -> Iterator[tuple[HudSnapshot, "ExtractStats"]]:
-        """Yield (snapshot, running stats) for each processed frame."""
+    ) -> Iterator[tuple[float, HudSnapshot | None, "ExtractStats"]]:
+        """Yield (t, snapshot or None, running stats) for every sampled frame.
+
+        Gated (unchanged) frames yield a None snapshot so callers can
+        checkpoint sampling progress on every frame, not just OCRed ones.
+        """
         stats = ExtractStats()
         self._misses = 0
         cap = cv2.VideoCapture(str(video))
@@ -169,6 +173,7 @@ class SnapshotExtractor:
             self._t = t
             if not self._changed(frame):
                 stats.gated += 1
+                yield t, None, stats
                 t += interval
                 continue
             stats.processed += 1
@@ -176,7 +181,7 @@ class SnapshotExtractor:
             snap = self._to_snapshot(t, frame, read)
             stats.snapshots += 1
             stats.unmatched_cards = self._misses
-            yield snap, stats
+            yield t, snap, stats
             t += interval
         cap.release()
 
@@ -185,9 +190,46 @@ def write_snapshots(snapshots: list[HudSnapshot], out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w") as f:
         for snap in snapshots:
-            f.write(json.dumps(dataclasses.asdict(snap)) + "\n")
+            f.write(snapshot_line(snap))
+
+
+def snapshot_line(snap: HudSnapshot) -> str:
+    return json.dumps(dataclasses.asdict(snap)) + "\n"
+
+
+def last_snapshot_t(path: Path) -> float | None:
+    """Timestamp of the last parseable snapshot in a JSONL, or None.
+
+    Fallback resume point when no progress sidecar exists. Conservative:
+    a trailing gated (unwritten) stretch re-scans, which only costs cheap
+    thumbnail diffs.
+    """
+    last = None
+    with Path(path).open() as f:
+        for line in f:
+            if line.strip():
+                last = line
+    if last is None:
+        return None
+    try:
+        return float(json.loads(last)["t"])
+    except (ValueError, KeyError, json.JSONDecodeError):
+        return None
 
 
 def read_snapshots(path: Path) -> list[HudSnapshot]:
-    with Path(path).open() as f:
-        return [HudSnapshot(**json.loads(line)) for line in f if line.strip()]
+    """Load a snapshot JSONL, tolerating one truncated trailing line.
+
+    A killed extraction can leave a partial final record; every other
+    parse failure is real corruption and raises.
+    """
+    lines = [line for line in Path(path).open() if line.strip()]
+    out = []
+    for i, line in enumerate(lines):
+        try:
+            out.append(HudSnapshot(**json.loads(line)))
+        except json.JSONDecodeError:
+            if i == len(lines) - 1:
+                break
+            raise
+    return out

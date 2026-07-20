@@ -124,34 +124,85 @@ def extract_state(
     interval: float = typer.Option(1.0, help="seconds between sampled frames"),
     t_start: float = 0.0,
     t_end: float = typer.Option(None, help="stop timestamp (s); default = full video"),
+    out: Path = typer.Option(
+        None, help="output JSONL; default data/hands/<video>.snapshots.jsonl"
+    ),
+    resume: bool = typer.Option(
+        True,
+        "--resume/--fresh",
+        help="continue an interrupted run from its checkpoint, or start over",
+    ),
 ) -> None:
-    """OCR the HUD stream into a HudSnapshot JSONL under data/hands."""
-    from pokertell.gamestate.extract import SnapshotExtractor, write_snapshots
+    """OCR the HUD stream into a HudSnapshot JSONL under data/hands.
+
+    Snapshots append to the output as they are extracted and a sidecar
+    checkpoint tracks sampling progress, so a killed run (or a reclaimed
+    spot instance) resumes by rerunning the same command.
+    """
+    from pokertell.checkpoint import (
+        clear_progress,
+        load_progress,
+        save_progress,
+        trim_partial_line,
+    )
+    from pokertell.gamestate.extract import (
+        SnapshotExtractor,
+        last_snapshot_t,
+        snapshot_line,
+    )
     from pokertell.gamestate.rois import load_layout
 
     paths = default_paths().ensure()
+    if out is None:
+        out = paths.hands / f"{video.stem}.snapshots.jsonl"
+    out.parent.mkdir(parents=True, exist_ok=True)
+
+    resumed_from = None
+    if resume and out.exists():
+        trim_partial_line(out)
+        checkpoint = load_progress(out)
+        if checkpoint is None:
+            last_t = last_snapshot_t(out)
+            checkpoint = last_t + interval if last_t is not None else None
+        if checkpoint is not None and checkpoint > t_start:
+            resumed_from = checkpoint
+            t_start = checkpoint
+            typer.echo(f"resuming {out} from t={t_start:.1f}s")
+    elif not resume:
+        out.unlink(missing_ok=True)
+        clear_progress(out)
+
     extractor = SnapshotExtractor(
         load_layout(layout), templates, unmatched_dir=paths.frames / "unmatched" / video.stem
     )
-    snapshots = []
     stats = None
-    for snap, stats in extractor.run(video, interval=interval, t_start=t_start, t_end=t_end):
-        snapshots.append(snap)
-        if stats.processed % 50 == 0:
-            typer.echo(
-                f"t={snap.t:8.1f}s sampled={stats.sampled} gated={stats.gated} "
-                f"processed={stats.processed}"
-            )
-    out = paths.hands / f"{video.stem}.snapshots.jsonl"
-    write_snapshots(snapshots, out)
+    written = 0
+    with out.open("a") as f:
+        for t, snap, stats in extractor.run(
+            video, interval=interval, t_start=t_start, t_end=t_end
+        ):
+            if snap is not None:
+                f.write(snapshot_line(snap))
+                f.flush()
+                written += 1
+            save_progress(out, t + interval)
+            if snap is not None and stats.processed % 50 == 0:
+                typer.echo(
+                    f"t={snap.t:8.1f}s sampled={stats.sampled} gated={stats.gated} "
+                    f"processed={stats.processed}"
+                )
     if stats is None:
+        if resumed_from is not None:
+            typer.echo(f"nothing to do: {out} already covers the requested range")
+            return
         typer.echo("no frames processed; check the video path and time range")
         raise typer.Exit(code=1)
     typer.echo(
         f"done: {stats.sampled} sampled, {stats.gated} gated out, "
         f"{stats.processed} OCRed, {stats.unmatched_cards} unmatched card cells"
     )
-    typer.echo(f"wrote {len(snapshots)} snapshots to {out}")
+    total = sum(1 for line in out.open() if line.strip())
+    typer.echo(f"wrote {written} new snapshots ({total} total) to {out}")
 
 
 @app.command()
@@ -183,12 +234,28 @@ def extract_behavior(
     video: Path,
     hands_file: Path,
     seats: Path,
+    resume: bool = typer.Option(
+        True,
+        "--resume/--fresh",
+        help="skip decisions already in the output CSV, or start over",
+    ),
 ) -> None:
-    """Extract face/pose features over decision windows into data/features."""
-    from pokertell.behavior.extract import extract_session_behavior
+    """Extract face/pose features over decision windows into data/features.
+
+    Rows append to the CSV per decision as they finish, so rerunning the
+    same command after a kill resumes where it stopped.
+    """
+    from pokertell.behavior.extract import extract_session_behavior, load_done_keys
 
     paths = default_paths().ensure()
     session_id = hands_file.stem.replace(".hands", "")
+    out = paths.features / f"{session_id}.behavior.csv"
+    if not resume:
+        out.unlink(missing_ok=True)
+    elif out.exists():
+        already = len(load_done_keys(out))
+        if already:
+            typer.echo(f"resuming: {already} decisions already in {out}")
 
     def progress(row: dict) -> None:
         typer.echo(
@@ -196,9 +263,7 @@ def extract_behavior(
             f"face_cov={row.get('face_coverage', 0):.2f} pose_cov={row.get('pose_coverage', 0):.2f}"
         )
 
-    df = extract_session_behavior(video, hands_file, seats, progress=progress)
-    out = paths.features / f"{session_id}.behavior.csv"
-    df.to_csv(out, index=False)
+    df = extract_session_behavior(video, hands_file, seats, out_path=out, progress=progress)
     typer.echo(f"wrote {len(df)} rows to {out}")
 
 

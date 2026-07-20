@@ -21,6 +21,7 @@ trajectories; wrist speeds are shoulder-width normalized, and the
 amplitude-invariant smoothness metrics limit but do not eliminate this.
 """
 
+import csv
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -30,8 +31,9 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from pokertell.behavior.face import FaceTracker, summarize_blendshapes
-from pokertell.behavior.pose import PoseTracker, summarize_pose
+from pokertell.behavior.face import FACE_FEATURES, FaceTracker, summarize_blendshapes
+from pokertell.behavior.pose import POSE_FEATURES, PoseTracker, summarize_pose
+from pokertell.checkpoint import trim_partial_line
 
 CHIP_SIZE = 48
 CHIP_MATCH_THRESH = 0.55
@@ -206,25 +208,107 @@ class BehaviorExtractor:
         }
 
 
+# Fixed CSV schema: every extract_decision row has exactly these keys, and a
+# stable order lets interrupted runs append to the same file safely.
+BEHAVIOR_COLUMNS = [
+    "hand_id",
+    "player",
+    "t_start",
+    "t_end",
+    "window_s",
+    "n_frames",
+    "shot_coverage",
+    *FACE_FEATURES,
+    "face_coverage",
+    *POSE_FEATURES,
+    "pose_coverage",
+]
+
+
+def decision_key(hand_id: str, player: str, t_end: float) -> tuple[str, str, float]:
+    return (str(hand_id), str(player), round(float(t_end), 2))
+
+
+def load_done_keys(out_path: Path) -> set[tuple[str, str, float]]:
+    """Keys of decisions already present in a partial output CSV.
+
+    Raises if the file's schema does not match BEHAVIOR_COLUMNS: mixing
+    rows from an older extractor version into a resume would silently
+    corrupt the dataset (the v1 shot-signature extractor left such a file
+    behind once).
+    """
+    out_path = Path(out_path)
+    if not out_path.exists() or out_path.stat().st_size == 0:
+        return set()
+    df = pd.read_csv(out_path)
+    if list(df.columns) != BEHAVIOR_COLUMNS:
+        raise ValueError(
+            f"{out_path} has a different column schema (older extractor version?); "
+            "delete it or rerun with a fresh output path"
+        )
+    return {
+        decision_key(r.hand_id, r.player, r.t_end)
+        for r in df.itertuples(index=False)
+    }
+
+
 def extract_session_behavior(
     video: Path,
     hands_path: Path,
     seats_path: Path,
+    out_path: Path | None = None,
     progress=None,
 ) -> pd.DataFrame:
-    """One row of behavioral features per mapped decision."""
+    """One row of behavioral features per mapped decision.
+
+    With out_path set, rows append to the CSV as they are computed
+    (flushed per row, so a kill loses at most the decision in flight)
+    and decisions already present in the file are skipped, which makes
+    rerunning the command a resume. Returns the full table either way.
+    """
     seats = load_seats(seats_path)
     hands = [json.loads(line) for line in Path(hands_path).open()]
+
+    done: set[tuple[str, str, float]] = set()
+    writer = None
+    out_file = None
+    if out_path is not None:
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        trim_partial_line(out_path)
+        done = load_done_keys(out_path)
+        new_file = not out_path.exists() or out_path.stat().st_size == 0
+        out_file = out_path.open("a", newline="")
+        writer = csv.DictWriter(out_file, fieldnames=BEHAVIOR_COLUMNS)
+        if new_file:
+            writer.writeheader()
+            out_file.flush()
+
     extractor = BehaviorExtractor(video, seats)
     rows = []
     try:
         for hand in hands:
             for decision in hand["decisions"]:
+                if decision["player"] not in seats:
+                    continue
+                key = decision_key(
+                    decision["hand_id"], decision["player"], decision["t_end"]
+                )
+                if key in done:
+                    continue
                 row = extractor.extract_decision(decision)
-                if row is not None:
-                    rows.append(row)
-                    if progress is not None:
-                        progress(row)
+                if row is None:
+                    continue
+                rows.append(row)
+                if writer is not None:
+                    writer.writerow(row)
+                    out_file.flush()
+                if progress is not None:
+                    progress(row)
     finally:
         extractor.close()
+        if out_file is not None:
+            out_file.close()
+    if out_path is not None:
+        return pd.read_csv(out_path)
     return pd.DataFrame(rows)
