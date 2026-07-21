@@ -95,6 +95,9 @@ class BehaviorExtractor:
 
     def _build_reference_chips(self) -> None:
         face = FaceTracker()
+        # Synthetic monotonic timestamps: reference frames are unordered
+        # seeks across players, and VIDEO mode rejects backward timestamps.
+        ts_ms = 0
         try:
             for name, ref in self.seats.items():
                 for spec in ref.face_refs:
@@ -103,7 +106,8 @@ class BehaviorExtractor:
                     if not ok:
                         continue
                     crop = self._search_crop(frame, ref)
-                    faces = face.process(crop, int(spec["t"] * 1000))
+                    ts_ms += 40
+                    faces = face.process(crop, ts_ms)
                     if not faces:
                         continue
                     sx = ref.search[0]

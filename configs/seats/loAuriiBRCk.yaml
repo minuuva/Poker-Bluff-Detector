@@ -3,24 +3,37 @@
 #
 # v2 schema: per player, a generous search region covering every zoom level
 # of the shots that frame them, plus face-chip reference timestamps with the
-# approximate face center x (full-frame px) to disambiguate multi-face
-# frames.
+# approximate face center x (full-frame px, detector-measured) to
+# disambiguate multi-face frames.
 #
-# SUITEDSUPERMAN is the man in glasses and a gray CoinPoker t-shirt:
-# his panel flips to ALL IN $10,175 at t~5697 exactly as he reaches into
-# his chips, and after losing that flip he is standing behind the table
-# by t=5913. The old v1 map also credited him with the shot at t=5910,
-# but the HUD there shows a hand he is not in (Foxen/Francisco/Airball)
-# and the face at that spot is a different player in a blue Puma hoodie;
-# that reference is dropped.
+# The two mapped players sit in ADJACENT seats and appear together in most
+# cuts, which is what misled the old v1 map into swapping them. Commit
+# evidence:
 #
-# More SUPERMAN refs plus AIRBALL refs get added after this session's
-# hands assemble (commit-moment identification pass); Airball's Feb look
-# may differ from the Jul session.
+# AIRBALL is the glasses + gray CoinPoker t-shirt player (CoinPoker is his
+# sponsor; same build as his confirmed Jul session look): framed at his
+# RAISE flips t=1712 and t=8238, mid chip-toss 1.5s after his BET $300
+# flip at t=11726, and standing to sweat his own $37,775 decision at
+# t~5910 (a hand Suited Superman is not in).
+#
+# SUITEDSUPERMAN is the green Lacoste polo + mirrored sunglasses player:
+# arm extended behind a freshly pushed stack 0.5s after his BET $3,000
+# flip at t=13284 (97 percent equity, camera centered on him), and framed
+# at his RAISE $300 flip at t=1591. Sunglasses make face blendshapes
+# partly noise (same caveat as Airball in the Jul session); pose and
+# smile remain usable.
 
 seats:
-  SUITEDSUPERMAN:
-    search: {x: 850, y: 0, w: 1070, h: 900}
+  AIRBALL:
+    search: {x: 700, y: 0, w: 1220, h: 800}
     face_refs:
-      - {t: 5692.0, cx: 1400}
-      - {t: 5701.0, cx: 1336}
+      - {t: 1712.5, cx: 1152}
+      - {t: 6334.5, cx: 1060}
+      - {t: 8238.5, cx: 1417}
+      - {t: 11726.0, cx: 1430}
+  SUITEDSUPERMAN:
+    search: {x: 60, y: 0, w: 1100, h: 800}
+    face_refs:
+      - {t: 1591.5, cx: 450}
+      - {t: 5692.0, cx: 411}
+      - {t: 13284.5, cx: 828}
