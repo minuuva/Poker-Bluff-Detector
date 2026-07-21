@@ -545,10 +545,29 @@ def _is_off_session(hand: Hand, mode_blinds: tuple, has_pot: bool) -> bool:
     return False
 
 
+def repair_money(value: float | None) -> float | None:
+    """Undo the '$51,575' -> 51.575 thousands-separator misparse in stored
+    snapshots. HUD money never shows cents, so any fractional value is a
+    shifted read; parse_money now repairs new extractions at the source,
+    and this covers snapshot files written before that fix."""
+    if value is None or value == int(value):
+        return value
+    return float(round(value * 1000))
+
+
+def _repair_snapshot_money(s: HudSnapshot) -> None:
+    s.pot = repair_money(s.pot)
+    s.to_call = repair_money(s.to_call)
+    s.stacks = {k: repair_money(v) for k, v in s.stacks.items()}
+    s.bets = {k: repair_money(v) for k, v in s.bets.items()}
+
+
 def assemble_session(
     snaps: list[HudSnapshot], session_id: str
 ) -> tuple[list[Hand], dict]:
     """Normalize names, segment, and assemble all hands of one session."""
+    for s in snaps:
+        _repair_snapshot_money(s)
     raw_names = [k for s in snaps for k in s.players()]
     resolver = NameResolver(raw_names)
     normalized = normalize_snapshots(snaps, resolver)

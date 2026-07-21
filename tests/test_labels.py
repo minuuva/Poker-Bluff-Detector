@@ -46,7 +46,7 @@ def test_betting_features_call_decision():
 def test_betting_features_bet_decision():
     f = betting_features(HAND["decisions"][1], HAND)
     assert f["street_idx"] == 1
-    assert abs(f["bet_to_pot"] - 500 / 650) < 1e-9
+    assert abs(f["bet_to_pot"] - math.log1p(500 / 650)) < 1e-9
     assert f["is_aggressive"] == 1.0
     assert f["n_prior_raises"] == 1        # only the preflop raise precedes t=30
     assert f["players_in_hand"] == 2       # C folded at t=12 <= 28

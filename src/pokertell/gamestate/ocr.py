@@ -41,9 +41,16 @@ def parse_money(text: str) -> float | None:
     if not cleaned:
         return None
     try:
-        return float(cleaned) * multiplier
+        value = float(cleaned) * multiplier
     except ValueError:
         return None
+    if multiplier == 1.0 and value != int(value):
+        # HUD money never shows cents, so a fractional read means OCR
+        # rendered a thousands separator as a period ('$51,575' ->
+        # '51.575'). Shift it back; trailing-zero loss ('$1,750' ->
+        # '1.75') lands on the same rule.
+        value = round(value * 1000)
+    return float(value)
 
 
 def parse_stakes(text: str) -> list[float]:

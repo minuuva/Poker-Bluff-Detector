@@ -161,3 +161,22 @@ def test_parse_money():
 def test_parse_stakes():
     assert parse_stakes("$25/50 NL") == [25.0, 50.0]
     assert parse_stakes("$100/200/400") == [100.0, 200.0, 400.0]
+
+
+def test_parse_money_repairs_separator_misreads():
+    from pokertell.gamestate.ocr import parse_money
+
+    assert parse_money("$12,400") == 12400.0
+    assert parse_money("$51.575") == 51575.0
+    assert parse_money("$1.750") == 1750.0
+    assert parse_money("1.2M") == 1_200_000.0
+    assert parse_money("$575") == 575.0
+
+
+def test_repair_money_on_stored_values():
+    from pokertell.gamestate.statemachine import repair_money
+
+    assert repair_money(51.575) == 51575.0
+    assert repair_money(1.75) == 1750.0
+    assert repair_money(20750.0) == 20750.0
+    assert repair_money(None) is None

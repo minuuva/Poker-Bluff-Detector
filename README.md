@@ -29,6 +29,41 @@ strongest published poker cue is the smoothness of the betting motion
 a defensible delta with confidence intervals, not a magic bluff detector. See
 [RESEARCH.md](RESEARCH.md) for sources.
 
+## Results (two full sessions, 11 hours of broadcast)
+
+Data: two complete Hustler Casino Live sessions (Jul 2026 and Feb 2026),
+38,231 HUD snapshots, 333 assembled hands, 2,890 decision windows, 2,510 of
+them with Monte Carlo equity labels from the exposed hole cards. Behavioral
+features exist for 433 decision windows across the two mapped players (Nik
+Airball in both sessions, Suited Superman in one); a window is covered only
+when the player's seat camera is on air and face re-identification accepts
+the frames. Evaluation is leave-one-session-out (LOSO): train on one
+session, test on the other, pool the out-of-fold predictions.
+
+| Model | Target | n | AUC |
+|-------|--------|---|-----|
+| Betting-only baseline | is_bluff (aggressive and weak) | 670 | 0.55 |
+| Ablation, baseline only | is_bluff, behavior-covered rows | 92 | 0.45 |
+| Ablation, baseline + behavior | is_bluff | 92 | 0.47 (delta +0.010, 95% CI [-0.104, +0.124]) |
+| Ablation, baseline only | is_weak (all actions) | 220 | 0.44 |
+| Ablation, baseline + behavior | is_weak | 220 | 0.48 (delta +0.048, 95% CI [-0.023, +0.122]) |
+
+The honest reading: **with two sessions and one primary player, behavioral
+features do not add statistically resolvable predictive power.** The is_weak
+delta (+0.048) lands exactly where the literature says a real effect would
+live (a few hundredths of AUC), but the hand-grouped bootstrap CI includes
+zero. Resolving a delta of that size at these base rates needs roughly an
+order of magnitude more covered decisions, which means 15 to 20 more
+sessions of footage, not a bigger model. Two other results are themselves
+findings: cross-session generalization is brutal (the betting baseline falls
+from 0.75 within-session to 0.55 across sessions), and camera coverage is
+the binding constraint on everything behavioral (Airball's decision windows
+are face-covered 35 to 46 percent of the time; a player in mirrored
+sunglasses whose reference chips barely inter-correlate drops to 4 percent).
+
+Calibration plot: [docs/reliability.png](docs/reliability.png). Full tables
+regenerate with `pokertell report`.
+
 ## Pipeline
 
 ```mermaid
