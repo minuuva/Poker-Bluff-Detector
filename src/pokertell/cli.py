@@ -21,11 +21,6 @@ from pokertell.config import default_paths
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 
-def _todo(stage: str, day: str) -> None:
-    typer.echo(f"'{stage}' is scheduled for the {day} milestone and is not implemented yet.")
-    raise typer.Exit(code=1)
-
-
 @app.command()
 def download(url: str, height: int = 1080) -> None:
     """Download one session video into data/raw (local only, never committed)."""
@@ -370,9 +365,43 @@ def report(
 
 
 @app.command()
-def demo() -> None:
-    """Render the overlay demo clip (day 7)."""
-    _todo("demo", "day 7")
+def demo(
+    video: Path,
+    hand_id: str = typer.Option(..., help="hand to render, e.g. loAuriiBRCk#0110"),
+    t_end: float = typer.Option(..., help="t_end of the decision window to render"),
+    player: str = typer.Option("AIRBALL"),
+    seats: Path = typer.Option(None, help="default configs/seats/<video stem>.yaml"),
+    target: str = typer.Option("is_bluff"),
+) -> None:
+    """Render one decision window as an annotated overlay clip (local only)."""
+    from pokertell.demo.overlay import render_demo
+    from pokertell.demo.predict import demo_probabilities
+
+    paths = default_paths().ensure()
+    session_id = video.stem
+    if seats is None:
+        seats = Path("configs/seats") / f"{session_id}.yaml"
+    result = demo_probabilities(
+        paths, session_id, hand_id, player, t_end, target=target
+    )
+    typer.echo(
+        f"P({target}) held-out: betting only {result['base']:.1%}, "
+        f"with behavior {result['full']:.1%}"
+    )
+    out = paths.demo / f"{hand_id.replace('#', '_')}_{player}.mp4"
+    render_demo(
+        video,
+        paths.hands / f"{session_id}.hands.jsonl",
+        seats,
+        out,
+        hand_id,
+        player,
+        t_end,
+        probs=result,
+        behavior_row=result["row"],
+        target=target,
+    )
+    typer.echo(f"wrote {out}")
 
 
 if __name__ == "__main__":

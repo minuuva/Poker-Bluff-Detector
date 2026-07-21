@@ -110,6 +110,26 @@ strong draw / strong / monster via Monte Carlo equity.
 | 6 | Held-out evaluation, bootstrap CIs, calibration, results writeup |
 | 7 | Demo overlay clip, README results section, polish |
 
+## Demo clips
+
+`pokertell demo` renders one decision window with the pipeline's full view
+burned on top: the assembled game state, the face re-identification box
+with its live chip score, the wrist trail feeding the smoothness features,
+the behavioral readouts, and held-out-session P(bluff) for the betting
+baseline next to baseline + behavior. The clip freezes on a hole-card and
+equity reveal.
+
+```
+pokertell demo data/raw/loAuriiBRCk.mp4 --hand-id "loAuriiBRCk#0111" --t-end 14499
+```
+
+Rendered clips stay local under data/demo (see Ethics and data); the two
+showcase windows are Airball's turn raise at 10 percent equity
+(loAuriiBRCk#0111, a genuine bluff) and his flop raise at 77 percent
+(osFhAW7BFMs#0048, the contrast case). On the bluff clip the behavior
+model actually moves the estimate the wrong way, which is exactly what a
+null aggregate delta looks like at the level of a single hand.
+
 ## Setup
 
 Requires Python 3.12 (eval7 wheels stop at 3.12), [uv](https://docs.astral.sh/uv/),

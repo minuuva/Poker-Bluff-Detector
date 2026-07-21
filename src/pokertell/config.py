@@ -44,9 +44,17 @@ class Paths:
         """Evaluation outputs: metrics tables, calibration plots."""
         return self.root / "reports"
 
+    @property
+    def demo(self) -> Path:
+        """Rendered demo overlay clips (local only, never committed)."""
+        return self.root / "demo"
+
     def ensure(self) -> "Paths":
         """Create all data subdirectories if missing and return self."""
-        for p in (self.raw, self.frames, self.hands, self.features, self.models, self.reports):
+        for p in (
+            self.raw, self.frames, self.hands, self.features,
+            self.models, self.reports, self.demo,
+        ):
             p.mkdir(parents=True, exist_ok=True)
         return self
 
