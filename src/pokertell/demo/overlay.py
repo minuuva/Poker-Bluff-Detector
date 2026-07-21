@@ -32,11 +32,10 @@ from pokertell.behavior.events import (
     motion_energy,
 )
 from pokertell.behavior.extract import (
-    CHIP_MATCH_THRESH,
     BehaviorExtractor,
-    chip_similarity,
     face_chip,
     load_seats,
+    match_face,
 )
 from pokertell.behavior.face import (
     BLINK_DEBOUNCE_S,
@@ -457,14 +456,11 @@ def render_demo(
             ts_ms += int(1000 / fps)
             accepted = None
             score = 0.0
-            for obs in face.detect(crop, ts_ms):
-                chip = face_chip(crop, obs.bbox)
-                if chip is None:
-                    continue
-                s = max(chip_similarity(chip, c) for c in ref.chips)
-                if s >= CHIP_MATCH_THRESH:
-                    accepted, score = obs, s
-                    break
+            observations = face.detect(crop, ts_ms)
+            chips = [face_chip(crop, obs.bbox) for obs in observations]
+            m = match_face(chips, ref)
+            if m is not None:
+                accepted, score = observations[m[0]], m[1]
             if accepted is not None:
                 last_accept_ms = ts_ms
                 x, y, bw, bh = accepted.bbox

@@ -146,3 +146,24 @@ def test_face_chip_and_similarity():
     assert chip is not None and chip.shape == (CHIP_SIZE, CHIP_SIZE)
     assert chip_similarity(chip, chip) > 0.99
     assert face_chip(crop, (10, 10, 30, 30)) is None  # below MIN_FACE_W
+
+
+def test_match_face_prefers_best_and_rejects_distractor_lookalikes():
+    import numpy as np
+
+    from pokertell.behavior.extract import PlayerRef, match_face
+
+    rng = np.random.default_rng(3)
+    player = rng.integers(0, 255, (48, 48), dtype=np.uint8)
+    stranger = rng.integers(0, 255, (48, 48), dtype=np.uint8)
+    ref = PlayerRef(search=(0, 0, 100, 100), face_refs=[], chips=[player])
+
+    # The player's own chip wins over an unrelated face; None entries skip.
+    assert match_face([None, stranger, player], ref)[0] == 2
+
+    # With the stranger registered as a distractor, a frame containing only
+    # the stranger is rejected even though self-similarity is 1.0 there.
+    ref.neg_chips = [stranger]
+    assert match_face([stranger], ref) is None
+    # The real player still passes: identical to own ref, dissimilar to neg.
+    assert match_face([player], ref)[0] == 0

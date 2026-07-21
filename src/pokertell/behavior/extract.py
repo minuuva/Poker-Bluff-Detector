@@ -38,6 +38,11 @@ from pokertell.checkpoint import trim_partial_line
 
 CHIP_SIZE = 48
 CHIP_MATCH_THRESH = 0.55
+# A candidate face must beat every distractor reference by this margin.
+# Found the hard way: a neighboring player's face correlated 0.66 with
+# Airball's references (threshold 0.55) and was silently attributed to him
+# whenever Airball's own face was looking down.
+NEG_MARGIN = 0.05
 MIN_FACE_W = 60
 WINDOW_PRE_PAD_S = 0.5
 COMMIT_PAD_S = 2.0
@@ -48,11 +53,20 @@ FACE_STRIDE = 2
 
 @dataclass
 class PlayerRef:
-    """Search region plus face-chip references for one player."""
+    """Search region, face-chip references, and distractor references.
+
+    Distractors are OTHER people who appear inside this player's search
+    region and resemble them enough to beat the similarity threshold; a
+    candidate face is attributed only when it matches the player's own
+    references better than every distractor reference (open-set threshold
+    turned into nearest-neighbor classification).
+    """
 
     search: tuple[int, int, int, int]
     face_refs: list[dict]
+    distractors: list[dict] = field(default_factory=list)
     chips: list[np.ndarray] = field(default_factory=list)
+    neg_chips: list[np.ndarray] = field(default_factory=list)
 
 
 def load_seats(path: Path) -> dict[str, PlayerRef]:
@@ -63,8 +77,29 @@ def load_seats(path: Path) -> dict[str, PlayerRef]:
         out[name] = PlayerRef(
             search=(s["x"], s["y"], s["w"], s["h"]),
             face_refs=list(spec.get("face_refs", [])),
+            distractors=list(spec.get("distractors", [])),
         )
     return out
+
+
+def match_face(chips: list[np.ndarray | None], ref: PlayerRef) -> tuple[int, float] | None:
+    """Best candidate index and score, or None if no face is attributable.
+
+    A candidate must clear CHIP_MATCH_THRESH against the player's own
+    references AND beat its best distractor score by NEG_MARGIN; among
+    survivors the highest positive score wins.
+    """
+    best: tuple[int, float] | None = None
+    for i, chip in enumerate(chips):
+        if chip is None:
+            continue
+        s_pos = max(chip_similarity(chip, c) for c in ref.chips)
+        s_neg = max((chip_similarity(chip, c) for c in ref.neg_chips), default=-1.0)
+        if s_pos < CHIP_MATCH_THRESH or s_pos <= s_neg + NEG_MARGIN:
+            continue
+        if best is None or s_pos > best[1]:
+            best = (i, s_pos)
+    return best
 
 
 def face_chip(crop_bgr: np.ndarray, bbox: tuple[int, int, int, int]) -> np.ndarray | None:
@@ -99,28 +134,33 @@ class BehaviorExtractor:
         # Synthetic monotonic timestamps: reference frames are unordered
         # seeks across players, and VIDEO mode rejects backward timestamps.
         ts_ms = 0
+        def chip_at(spec: dict, ref: PlayerRef) -> np.ndarray | None:
+            nonlocal ts_ms
+            self.cap.set(cv2.CAP_PROP_POS_MSEC, float(spec["t"]) * 1000)
+            ok, frame = self.cap.read()
+            if not ok:
+                return None
+            crop = self._search_crop(frame, ref)
+            ts_ms += 40
+            faces = face.process(crop, ts_ms)
+            if not faces:
+                return None
+            target_cx = float(spec["cx"]) - ref.search[0]
+            _, bbox = min(
+                faces, key=lambda fb: abs(fb[1][0] + fb[1][2] / 2 - target_cx)
+            )
+            return face_chip(crop, bbox)
+
         try:
             for name, ref in self.seats.items():
-                for spec in ref.face_refs:
-                    self.cap.set(cv2.CAP_PROP_POS_MSEC, float(spec["t"]) * 1000)
-                    ok, frame = self.cap.read()
-                    if not ok:
-                        continue
-                    crop = self._search_crop(frame, ref)
-                    ts_ms += 40
-                    faces = face.process(crop, ts_ms)
-                    if not faces:
-                        continue
-                    sx = ref.search[0]
-                    target_cx = float(spec["cx"]) - sx
-                    _, bbox = min(
-                        faces, key=lambda fb: abs(fb[1][0] + fb[1][2] / 2 - target_cx)
-                    )
-                    chip = face_chip(crop, bbox)
-                    if chip is not None:
-                        ref.chips.append(chip)
+                ref.chips = [c for s in ref.face_refs if (c := chip_at(s, ref)) is not None]
                 if not ref.chips:
                     raise ValueError(f"no reference chips built for {name}")
+                ref.neg_chips = [
+                    c for s in ref.distractors if (c := chip_at(s, ref)) is not None
+                ]
+                if ref.distractors and not ref.neg_chips:
+                    raise ValueError(f"no distractor chips built for {name}")
         finally:
             face.close()
 
@@ -162,14 +202,11 @@ class BehaviorExtractor:
                 accepted_bbox = None
                 if run_face:
                     shapes = None
-                    for cand_shapes, bbox in face.process(crop, int(t * 1000)):
-                        chip = face_chip(crop, bbox)
-                        if chip is None:
-                            continue
-                        score = max(chip_similarity(chip, c) for c in ref.chips)
-                        if score >= CHIP_MATCH_THRESH:
-                            shapes, accepted_bbox = cand_shapes, bbox
-                            break
+                    faces = face.process(crop, int(t * 1000))
+                    chips = [face_chip(crop, bbox) for _, bbox in faces]
+                    m = match_face(chips, ref)
+                    if m is not None:
+                        shapes, accepted_bbox = faces[m[0]]
                     blend_frames.append(shapes)
                     if accepted_bbox is not None:
                         n_identified += 1
