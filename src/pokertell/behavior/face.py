@@ -90,6 +90,15 @@ def summarize_blendshapes(frames: list[dict[str, float] | None], fps: float) -> 
 
 
 @dataclass
+class FaceObs:
+    """One detected face: blendshapes, bbox, and landmarks in crop pixels."""
+
+    shapes: dict[str, float]
+    bbox: tuple[int, int, int, int]
+    landmarks: "np.ndarray"  # (478, 2) pixel coordinates
+
+
+@dataclass
 class FaceTracker:
     """Run MediaPipe Face Landmarker over a frame sequence (one seat crop).
 
@@ -123,17 +132,22 @@ class FaceTracker:
         underlying detector is short-range: faces must be large relative to
         the input, so feed crops, not full frames.
         """
+        return [(o.shapes, o.bbox) for o in self.detect(frame_bgr, t_ms)]
+
+    def detect(self, frame_bgr: np.ndarray, t_ms: int) -> list[FaceObs]:
+        """Full observations (blendshapes, bbox, pixel landmarks) per face."""
         h, w = frame_bgr.shape[:2]
         rgb = frame_bgr[..., ::-1].copy()
         image = self._mp.Image(image_format=self._mp.ImageFormat.SRGB, data=rgb)
         result = self._landmarker.detect_for_video(image, t_ms)
         out = []
         for landmarks, blend in zip(result.face_landmarks, result.face_blendshapes):
-            xs = [p.x * w for p in landmarks]
-            ys = [p.y * h for p in landmarks]
-            bbox = (int(min(xs)), int(min(ys)), int(max(xs) - min(xs)), int(max(ys) - min(ys)))
+            pts = np.array([[p.x * w, p.y * h] for p in landmarks])
+            x0, y0 = pts.min(axis=0)
+            x1, y1 = pts.max(axis=0)
+            bbox = (int(x0), int(y0), int(x1 - x0), int(y1 - y0))
             shapes = {c.category_name: c.score for c in blend}
-            out.append((shapes, bbox))
+            out.append(FaceObs(shapes=shapes, bbox=bbox, landmarks=pts))
         return out
 
     def close(self) -> None:

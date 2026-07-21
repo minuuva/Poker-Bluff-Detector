@@ -51,8 +51,20 @@ def demo_probabilities(
     full_cols = BETTING_FEATURES + behavior_cols
     full = _make_model(model_kind).fit(covered[full_cols], covered[target])
 
+    strength = {}
+    strength_train = df[
+        (df["session_id"] != session_id) & df["strength_class"].notna()
+    ]
+    if len(strength_train) and strength_train["strength_class"].nunique() > 1:
+        clf = _make_model(model_kind).fit(
+            strength_train[full_cols], strength_train["strength_class"]
+        )
+        p = clf.predict_proba(row[full_cols])[0]
+        strength = {cls: float(v) for cls, v in zip(clf.classes_, p)}
+
     return {
         "base": float(base.predict_proba(row[BETTING_FEATURES])[0, 1]),
         "full": float(full.predict_proba(row[full_cols])[0, 1]),
+        "strength": strength,
         "row": row.iloc[0].to_dict(),
     }

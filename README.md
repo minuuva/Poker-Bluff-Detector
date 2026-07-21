@@ -113,11 +113,17 @@ strong draw / strong / monster via Monte Carlo equity.
 ## Demo clips
 
 `pokertell demo` renders one decision window with the pipeline's full view
-burned on top: the assembled game state, the face re-identification box
-with its live chip score, the wrist trail feeding the smoothness features,
-the behavioral readouts, and held-out-session P(bluff) for the betting
-baseline next to baseline + behavior. The clip freezes on a hole-card and
-equity reveal.
+burned on top: the assembled game state with a decision-time bar, the face
+re-identification box with its live chip score, eye, brow and lip contours
+with a gaze arrow, head-facing arrow and expression tags from the
+landmarks the features are computed from, a One-Euro smoothed trail of the
+acting wrist, a live blink counter, the window's behavioral z-scores
+labeled against the player's own baseline, the held-out six-class
+hand-strength distribution, and P(bluff) for the betting baseline next to
+baseline + behavior. The clip freezes on a hole-card and equity reveal.
+The six-class panel is deliberately uncalibrated held-out output; when it
+overcommits on a bluff, that is the cross-session transfer problem making
+the project's own argument.
 
 ```
 pokertell demo data/raw/loAuriiBRCk.mp4 --hand-id "loAuriiBRCk#0111" --t-end 14499
