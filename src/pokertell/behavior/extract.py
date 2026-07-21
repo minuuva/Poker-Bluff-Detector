@@ -31,6 +31,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from pokertell.behavior.events import EVENT_FEATURES, compute_event_features
 from pokertell.behavior.face import FACE_FEATURES, FaceTracker, summarize_blendshapes
 from pokertell.behavior.pose import POSE_FEATURES, PoseTracker, summarize_pose
 from pokertell.checkpoint import trim_partial_line
@@ -145,6 +146,7 @@ class BehaviorExtractor:
         pose = PoseTracker()
         blend_frames: list[dict | None] = []
         pose_frames: list[np.ndarray | None] = []
+        bbox_frames: list[tuple[int, int, int, int] | None] = []
         n = 0
         n_identified = 0
         last_bbox: tuple[int, int, int, int] | None = None
@@ -172,6 +174,7 @@ class BehaviorExtractor:
                     if accepted_bbox is not None:
                         n_identified += 1
                         last_bbox = accepted_bbox
+                bbox_frames.append(accepted_bbox)
                 # Pose follows the most recent identified face.
                 if last_bbox is not None:
                     x, y, w, h = last_bbox
@@ -198,6 +201,9 @@ class BehaviorExtractor:
         face_feats = summarize_blendshapes(blend_frames, self.fps / FACE_STRIDE)
         commit_frames = min(n, int(COMMIT_SEGMENT_S * self.fps))
         pose_feats = summarize_pose(pose_frames, self.fps, commit_frames)
+        event_feats = compute_event_features(
+            blend_frames, bbox_frames, pose_frames, self.fps, FACE_STRIDE
+        )
         n_face_frames = max(1, len(blend_frames))
         return {
             "hand_id": decision["hand_id"],
@@ -209,6 +215,7 @@ class BehaviorExtractor:
             "shot_coverage": round(n_identified / n_face_frames, 3),
             **face_feats,
             **pose_feats,
+            **event_feats,
         }
 
 
@@ -226,6 +233,7 @@ BEHAVIOR_COLUMNS = [
     "face_coverage",
     *POSE_FEATURES,
     "pose_coverage",
+    *EVENT_FEATURES,
 ]
 
 

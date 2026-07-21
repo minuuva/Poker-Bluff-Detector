@@ -23,6 +23,14 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from pokertell.behavior.events import (
+    FREEZE_THRESH,
+    GAZE_DOWN_OFF,
+    GAZE_DOWN_ON,
+    NEAR_FACE_DIST_W,
+    gaze_down_series,
+    motion_energy,
+)
 from pokertell.behavior.extract import (
     CHIP_MATCH_THRESH,
     BehaviorExtractor,
@@ -176,6 +184,56 @@ class LiveBlink:
         return self.blinks / (self._t - self._t0)
 
 
+class LiveEvents:
+    """Streaming event counters mirroring the events.py feature logic."""
+
+    def __init__(self, fps: float) -> None:
+        self._fps = fps
+        self.gaze_downs = 0
+        self._gaze_armed = True
+        self.near_face = False
+        self.frozen_s = 0.0
+        self._freeze_run = 0
+        self._lm_buf: deque = deque(maxlen=12)
+
+    def update_face(self, shapes: dict) -> None:
+        gy = float(gaze_down_series([shapes])[0])
+        if self._gaze_armed and gy > GAZE_DOWN_ON:
+            self.gaze_downs += 1
+            self._gaze_armed = False
+        elif not self._gaze_armed and gy < GAZE_DOWN_OFF:
+            self._gaze_armed = True
+
+    def update_pose(self, lm: np.ndarray, face_bbox: tuple[int, int, int, int]) -> None:
+        from pokertell.behavior.events import LEFT_WRIST as LW
+        from pokertell.behavior.events import MIN_VISIBILITY, RIGHT_WRIST as RW
+
+        x, y, w, h = face_bbox
+        cx, cy = x + w / 2, y + h / 2
+        self.near_face = any(
+            lm[i, 2] >= MIN_VISIBILITY
+            and np.hypot(lm[i, 0] - cx, lm[i, 1] - cy) < NEAR_FACE_DIST_W * max(w, 1)
+            for i in (LW, RW)
+        )
+        self._lm_buf.append(lm)
+        if len(self._lm_buf) >= 8:
+            e = motion_energy(list(self._lm_buf), self._fps)
+            last = e[~np.isnan(e)]
+            if len(last) and last[-1] < FREEZE_THRESH:
+                self._freeze_run += 1
+            else:
+                self._freeze_run = 0
+        self.frozen_s = self._freeze_run / self._fps
+
+    @property
+    def line(self) -> str:
+        hands = "hand at face" if self.near_face else "hands down"
+        return (
+            f"gaze-downs {self.gaze_downs}   {hands}   "
+            f"still {self.frozen_s:.1f}s"
+        )
+
+
 class ActingWrist:
     """Smoothed trails for both wrists; exposes the acting one.
 
@@ -235,6 +293,9 @@ def feature_lines(behavior_row: dict) -> list[str]:
         f"  blink {val('blink_rate')}   smile asym {val('smile_asymmetry')}",
         f"  wrist smoothness {val('wrist_jerk_ldj')}   lean {val('lean_std')}",
         f"  head motion {val('head_motion')}   gaze disp {val('gaze_dispersion')}",
+        f"  gaze-down {val('gaze_down_rate')}   near-face {val('near_face_frac')}",
+        f"  freeze {val('freeze_frac')}   shuffle {val('shuffle_score')}"
+        f"   lean fwd {val('lean_fwd')}",
     ]
 
 
@@ -376,6 +437,7 @@ def render_demo(
     pose = PoseTracker()
     wrist = ActingWrist(fps)
     blink = LiveBlink()
+    events = LiveEvents(fps)
     last_accept_ms = -10_000
     sx, sy = ref.search[0], ref.search[1]
 
@@ -419,6 +481,7 @@ def render_demo(
                     accepted.shapes.get("eyeBlinkRight", 0.0),
                     t,
                 )
+                events.update_face(accepted.shapes)
                 px0, py0 = max(0, x - int(1.6 * bw)), max(0, y - int(0.6 * bh))
                 px1 = min(crop.shape[1], x + bw + int(1.6 * bw))
                 py1 = min(crop.shape[0], y + bh + int(3.2 * bh))
@@ -428,6 +491,7 @@ def render_demo(
                     lm[:, 0] += sx + px0
                     lm[:, 1] += sy + py0
                     wrist.update(lm, t)
+                    events.update_pose(lm, bbox_full)
             if ts_ms - last_accept_ms > TRAIL_EXPIRE_MS:
                 wrist.reset()
             _draw_trail(frame, wrist.trail())
@@ -444,7 +508,7 @@ def render_demo(
 
             _draw_strength_panel(frame, probs.get("strength", {}), w - 420, 24)
             py = 24 + 40 + 26 * len(STRENGTH_ORDER) + 12
-            _panel(frame, w - 420, py, 396, 236)
+            _panel(frame, w - 420, py, 396, 292)
             _text(frame, f"P({target}) leave-one-session-out", (w - 404, py + 26), 0.5, GOLD)
             _prob_bar(frame, "betting only ", probs["base"], w - 404, py + 56)
             _prob_bar(frame, "with behavior", probs["full"], w - 404, py + 102)
@@ -453,8 +517,9 @@ def render_demo(
                 f"blinks {blink.blinks}  ({blink.rate:.2f}/s live)",
                 (w - 404, py + 140), 0.45, WHITE,
             )
+            _text(frame, events.line, (w - 404, py + 160), 0.45, WHITE)
             for i, line in enumerate(feature_lines(behavior_row)):
-                _text(frame, line, (w - 404, py + 162 + 17 * i), 0.42, GRAY)
+                _text(frame, line, (w - 404, py + 184 + 17 * i), 0.42, GRAY)
             writer.write(frame)
 
         if frame is not None:

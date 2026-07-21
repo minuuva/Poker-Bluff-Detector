@@ -90,11 +90,14 @@ def test_last_snapshot_t(tmp_path):
 
 def test_behavior_columns_match_feature_outputs():
     """The fixed CSV schema must equal the keys extract_decision emits."""
+    from pokertell.behavior.events import compute_event_features
+
     face = summarize_blendshapes([None] * 5, 15.0)
     pose = summarize_pose([None] * 5, 30.0, 10)
+    events = compute_event_features([None] * 5, [None] * 5, [None] * 5, 30.0, 2)
     row_keys = [
         "hand_id", "player", "t_start", "t_end", "window_s", "n_frames",
-        "shot_coverage", *face.keys(), *pose.keys(),
+        "shot_coverage", *face.keys(), *pose.keys(), *events.keys(),
     ]
     assert row_keys == BEHAVIOR_COLUMNS
 

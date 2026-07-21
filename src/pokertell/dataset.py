@@ -2,12 +2,13 @@
 
 import pandas as pd
 
+from pokertell.behavior.events import EVENT_FEATURES
 from pokertell.behavior.face import FACE_FEATURES
 from pokertell.behavior.features import zscore_per_player
 from pokertell.behavior.pose import POSE_FEATURES
 from pokertell.config import Paths
 
-BEHAVIOR_FEATURES = FACE_FEATURES + POSE_FEATURES
+BEHAVIOR_FEATURES = FACE_FEATURES + POSE_FEATURES + EVENT_FEATURES
 
 
 def load_dataset(paths: Paths) -> pd.DataFrame:
