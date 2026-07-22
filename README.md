@@ -40,28 +40,41 @@ when the player's seat camera is on air and face re-identification accepts
 the frames. Evaluation is leave-one-session-out (LOSO): train on one
 session, test on the other, pool the out-of-fold predictions.
 
-| Model | Target | n | AUC |
-|-------|--------|---|-----|
-| Betting-only baseline | is_bluff (aggressive and weak) | 670 | 0.55 |
-| Ablation, baseline only | is_bluff, behavior-covered rows | 91 | 0.52 |
-| Ablation, + face and pose features | is_bluff | 91 | 0.48 (delta -0.041) |
-| Ablation, + all behavior incl. events | is_bluff | 91 | 0.51 (delta -0.007, 95% CI [-0.147, +0.128]) |
-| Ablation, baseline only | is_weak (all actions) | 218 | 0.47 |
-| Ablation, + face and pose features | is_weak | 218 | 0.51 (delta +0.044, 95% CI [-0.028, +0.117]) |
-| Ablation, + all behavior incl. events | is_weak | 218 | 0.50 (delta +0.031, 95% CI [-0.061, +0.127]) |
+| Ablation arm | Target | n | delta AUC over betting-only (95% CI) |
+|--------------|--------|---|--------------------------------------|
+| + face and pose features | is_weak | 213 | **+0.096 [+0.005, +0.181]** |
+| + event detectors only | is_weak | 213 | +0.008 [-0.059, +0.071] |
+| + all behavior | is_weak | 213 | +0.085 [-0.015, +0.184] |
+| + face and pose features | is_bluff | 89 | +0.048 [-0.067, +0.171] |
+| + event detectors only | is_bluff | 89 | +0.016 [-0.067, +0.096] |
+| + all behavior | is_bluff | 89 | +0.038 [-0.110, +0.184] |
 
-The honest reading: **with two sessions and one primary player, behavioral
-features do not add statistically resolvable predictive power.** The
-face-and-pose is_weak delta (+0.044) lands exactly where the literature says
-a real effect would live (a few hundredths of AUC), and it reproduced across
-a full re-extraction of both sessions, but the hand-grouped bootstrap CI
-includes zero. Iteration 3 added six behavioral event detectors (downward
-gaze rate, hand near face, freeze fraction and longest freeze, chip-shuffle
-periodicity, forward lean), each built to be bet-size leakage-proof; they
-did not add resolvable signal either (events-only is_weak delta -0.010,
-is_bluff +0.030, both well inside noise), and stacking them onto face and
-pose slightly diluted the existing delta. That is what a feature that does
-not carry signal at this sample size looks like, and it is reported as such. Resolving a delta of that size at these base rates needs roughly an
+The betting-only baseline scores AUC 0.55 on all 670 labeled aggressive
+decisions (cross-session; the same model scores 0.75 within-session).
+
+The honest reading, in three parts.
+
+**Identity hygiene mattered more than any feature.** A neighboring player's
+face correlated 0.66 with Airball's references (acceptance threshold 0.55)
+and was silently attributed to him whenever his own face dipped out of
+view: 82 of his 193 session 2 windows carried some of the wrong player's
+facial data, one of them entirely. Registering the lookalike as a
+distractor reference and requiring every attribution to beat it moved the
+face-and-pose is_weak delta from +0.044 (CI including zero) to +0.096 with
+a CI that excludes zero. Cleaning labels beat adding features by an order
+of magnitude.
+
+**The face-and-pose is_weak delta is now borderline resolvable, and is
+reported with caution.** The CI [+0.005, +0.181] clears zero, but barely,
+and it is one comparison among several looks at a small sample; treat it
+as a registered hypothesis for the next sessions of footage, not a
+discovery. The is_bluff arms stay null at n=89.
+
+**The iteration 3 event detectors carry no measurable signal.** Downward
+gaze rate, hand near face, freeze fraction and longest freeze, chip
+shuffle periodicity, and forward lean, each built to be bet-size
+leakage-proof, land within noise alone (+0.008 on is_weak) and dilute the
+face-and-pose delta when stacked. A null shipped as a null. Resolving a delta of that size at these base rates needs roughly an
 order of magnitude more covered decisions, which means 15 to 20 more
 sessions of footage, not a bigger model. Two other results are themselves
 findings: cross-session generalization is brutal (the betting baseline falls
