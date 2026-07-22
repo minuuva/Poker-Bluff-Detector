@@ -1,0 +1,22 @@
+# Seat map for session ObmthwbEXCI (Jul 4 2026, "Nik Airball, Britney,
+# Jack Lee & Big Mike, $50/100").
+#
+# AIRBALL this session: shaved head, black sunglasses, oversized green
+# t-shirt with bird prints. Commit evidence: centered in his seat camera
+# at his ALL IN $32,850 flip (t=4740, A3o at 16 percent), his RAISE
+# $8,000 flip (t=5958, 95s at 83 percent), and on the button at t=12010.
+# The search region covers his framing range (cx 960 to 1400) while
+# excluding Britney (left, cx under 400) and the foreground staff heads
+# (y over 700).
+#
+# Distractor audit run before any model output per the iteration 4
+# preregistration; see distractors below.
+
+seats:
+  AIRBALL:
+    search: {x: 700, y: 0, w: 1000, h: 700}
+    face_refs:
+      - {t: 4740.5, cx: 1360}
+      - {t: 5958.5, cx: 960}
+      - {t: 12010.0, cx: 1060}
+      - {t: 16200.0, cx: 1400}
