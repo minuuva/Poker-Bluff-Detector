@@ -1,0 +1,26 @@
+# Seat map for session CyQRb173NfA (Apr 25 2026, "Jungleman, Nik Airball
+# & Big Mike" title; table runs $50/100 with a rotating cast).
+#
+# AIRBALL: trucker cap and black tee early, black HUSTLER hoodie later,
+# shaved head and black sunglasses throughout; identified by tank-camera
+# consistency across independent long to-act windows. The purple-fur
+# balaclava player is Jungleman. References are detector-verified frames
+# (his chin-on-hand tank pose defeats the face detector in most frames,
+# and the cap era never detects at all, so behavioral coverage for this
+# session skews to the hoodie hours; recorded as an honest limitation).
+#
+# Distractor audit (prereg): two lookalikes clear the 0.55 gate against
+# his references. The headset staff man seated to the left (no glasses,
+# side-parted hair) reaches 0.60, and the neighbor in the Kim Kardashian
+# tee wears sunglasses late-session. Both registered.
+
+seats:
+  AIRBALL:
+    search: {x: 150, y: 0, w: 1500, h: 700}
+    face_refs:
+      - {t: 15974.0, cx: 592}
+      - {t: 17487.0, cx: 507}
+      - {t: 17505.0, cx: 553}
+    distractors:
+      - {t: 9631.0, cx: 582}
+      - {t: 18277.0, cx: 1469}
