@@ -35,6 +35,17 @@ attribution was cleaned with distractor references.
    were null in iteration 3); they may be reported as a secondary
    exploratory arm, labeled as such.
 
+## Session substitution log
+
+2026-07-22, before any extraction: ZeCmz2DA6Zg (May 30) was downloaded
+and found to use a different broadcast graphics package (bottom-left
+panel block, relocated pot box); pot and stakes do not parse with the
+frozen ROI layout, so it fails selection criterion 1 and is excluded on
+technical grounds. Replaced by CyQRb173NfA (Apr 25, Jungleman, Nik
+Airball, Big Mike), whose probe frames parse with the frozen layout.
+The substitution was decided from probe frames only, before any
+extraction, labeling, or model output on either session.
+
 ## What is not allowed
 
 Re-tuning thresholds, swapping models, moving the coverage cutoff,
