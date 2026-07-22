@@ -42,46 +42,52 @@ session, test on the other, pool the out-of-fold predictions.
 
 | Ablation arm | Target | n | delta AUC over betting-only (95% CI) |
 |--------------|--------|---|--------------------------------------|
-| + face and pose features | is_weak | 213 | **+0.096 [+0.005, +0.181]** |
-| + event detectors only | is_weak | 213 | +0.008 [-0.059, +0.071] |
-| + all behavior | is_weak | 213 | +0.085 [-0.015, +0.184] |
-| + face and pose features | is_bluff | 89 | +0.048 [-0.067, +0.171] |
-| + event detectors only | is_bluff | 89 | +0.016 [-0.067, +0.096] |
-| + all behavior | is_bluff | 89 | +0.038 [-0.110, +0.184] |
+| + face and pose features | is_weak | 186 | +0.009 [-0.058, +0.074] |
+| + event detectors only | is_weak | 186 | -0.032 [-0.113, +0.046] |
+| + all behavior | is_weak | 186 | -0.033 [-0.143, +0.072] |
+| + face and pose features | is_bluff | 78 | -0.022 [-0.169, +0.136] |
+| + event detectors only | is_bluff | 78 | -0.007 [-0.117, +0.099] |
+| + all behavior | is_bluff | 78 | +0.019 [-0.131, +0.185] |
 
 The betting-only baseline scores AUC 0.55 on all 670 labeled aggressive
 decisions (cross-session; the same model scores 0.75 within-session).
 
-The honest reading, in three parts.
+The honest reading is the story of an artifact, and it is the project's
+most instructive result.
 
-**Identity hygiene mattered more than any feature.** A neighboring player's
-face correlated 0.66 with Airball's references (acceptance threshold 0.55)
-and was silently attributed to him whenever his own face dipped out of
-view: 82 of his 193 session 2 windows carried some of the wrong player's
-facial data, one of them entirely. Registering the lookalike as a
-distractor reference and requiring every attribution to beat it moved the
-face-and-pose is_weak delta from +0.044 (CI including zero) to +0.096 with
-a CI that excludes zero. Cleaning labels beat adding features by an order
-of magnitude.
+**A behavioral "effect" appeared, strengthened, and then vanished as
+identity attribution was progressively cleaned.** On the original tables,
+where a lookalike neighbor's face was sometimes silently attributed to the
+tracked player, adding face and pose features read as delta +0.044 (CI
+including zero). After distractor references were added but while a
+wrong-person chip still sat inside each session's positive reference
+library, the delta read +0.096 with a CI excluding zero, which briefly
+looked like the project's first resolvable effect. With enrollment made
+deterministic, position-bounded, and every reference chip visually
+verified, the delta is +0.009 with a CI comfortably spanning zero. The
+apparent signal was cross-player contamination: another player's face,
+measured during the tracked player's decisions, correlates with decision
+context in ways that imitate a behavioral tell. Identity hygiene did not
+just beat feature engineering, it was the entire observed effect.
 
-**The face-and-pose is_weak delta is now borderline resolvable, and is
-reported with caution.** The CI [+0.005, +0.181] clears zero, but barely,
-and it is one comparison among several looks at a small sample; treat it
-as a registered hypothesis for the next sessions of footage, not a
-discovery. The is_bluff arms stay null at n=89.
+**Every arm is now a null at this sample size.** Face and pose, the event
+detectors, and their union all land inside noise on both targets. The
+event detectors (downward gaze rate, hand near face, freeze, chip shuffle
+periodicity, forward lean) were built bet-size leakage-proof and are
+shipped as an honest null.
 
-**The iteration 3 event detectors carry no measurable signal.** Downward
-gaze rate, hand near face, freeze fraction and longest freeze, chip
-shuffle periodicity, and forward lean, each built to be bet-size
-leakage-proof, land within noise alone (+0.008 on is_weak) and dilute the
-face-and-pose delta when stacked. A null shipped as a null. Resolving a delta of that size at these base rates needs roughly an
-order of magnitude more covered decisions, which means 15 to 20 more
-sessions of footage, not a bigger model. Two other results are themselves
-findings: cross-session generalization is brutal (the betting baseline falls
-from 0.75 within-session to 0.55 across sessions), and camera coverage is
-the binding constraint on everything behavioral (Airball's decision windows
-are face-covered 35 to 46 percent of the time; a player in mirrored
-sunglasses whose reference chips barely inter-correlate drops to 4 percent).
+**What it would take to find a real effect** is unchanged by any of this:
+an order of magnitude more covered decisions, meaning 15 to 20 more
+sessions, plus the identity discipline this project now enforces
+(deterministic enrollment, distractor registration, chip-level visual
+verification). Two structural findings stand: cross-session
+generalization is brutal (betting baseline 0.75 within-session falls to
+0.55 across sessions), and camera coverage binds everything behavioral
+(clean face coverage runs about 29 to 33 percent for the primary player;
+a player in mirrored sunglasses drops to 4 percent). A preregistered
+replication on unseen sessions (docs/prereg_iteration4.md) is in
+progress; under the now-null in-sample estimate its expected outcome is
+a failed replication, and it will be reported either way.
 
 Calibration plot: [docs/reliability.png](docs/reliability.png). Full tables
 regenerate with `pokertell report`.
