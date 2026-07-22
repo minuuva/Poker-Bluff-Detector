@@ -15,7 +15,17 @@ seats:
   AIRBALL:
     search: {x: 350, y: 0, w: 1300, h: 760}
     face_refs:
-      - {t: 6280.0, cx: 1050}
+      # t=6280 and t=6728 dropped by the deterministic builder: no face
+      # within tolerance of cx=1050 there (6280 detects only the neighbor,
+      # who the old builder had silently enrolled as Airball).
+      - {t: 6255.0, cx: 1212}
       - {t: 6328.0, cx: 1050}
       - {t: 6495.0, cx: 1050}
-      - {t: 6728.0, cx: 1050}
+      - {t: 19052.0, cx: 1083}
+    # Iteration 4 audit: the neighbor to Airball's right (black tee, gold
+    # watch) hits 0.645 against Airball's references, above the 0.55 gate.
+    # Frames at t=7835/14155/16524 confirmed the low-cx hits are Airball
+    # himself under left-seat framing; only this neighbor is a lookalike.
+    distractors:
+      - {t: 6571.0, cx: 1401}
+      - {t: 14155.0, cx: 1600}

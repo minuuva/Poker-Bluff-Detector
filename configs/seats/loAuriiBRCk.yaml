@@ -27,14 +27,16 @@ seats:
   AIRBALL:
     search: {x: 700, y: 0, w: 1220, h: 800}
     face_refs:
-      - {t: 1712.5, cx: 1152}
       - {t: 6334.5, cx: 1060}
       - {t: 8238.5, cx: 1417}
       - {t: 11726.0, cx: 1430}
-    # The player one seat over (black jacket, glasses) correlates 0.66
-    # with Airball's references, above the 0.55 gate: registered as a
-    # distractor so attribution requires beating him, not just a floor.
+    # Two lookalikes. The black-jacket glasses neighbor correlates 0.66
+    # with Airball's references. And the t=1712.5 frame, once used as an
+    # Airball reference, actually contains a different dark-haired player
+    # at that cx (the deterministic builder proved the enrollment was
+    # wrong), so the same spec now serves as his distractor reference.
     distractors:
+      - {t: 1712.5, cx: 1152}
       - {t: 14493.0, cx: 1862}
   SUITEDSUPERMAN:
     search: {x: 60, y: 0, w: 1100, h: 800}

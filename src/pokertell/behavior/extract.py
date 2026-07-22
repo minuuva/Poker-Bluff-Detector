@@ -43,6 +43,11 @@ CHIP_MATCH_THRESH = 0.55
 # Airball's references (threshold 0.55) and was silently attributed to him
 # whenever Airball's own face was looking down.
 NEG_MARGIN = 0.05
+# A reference spec only enrolls a face detected within this many pixels of
+# the spec's cx. Without the bound, a frame where the intended player went
+# undetected silently enrolled whoever was nearest, and both sessions'
+# libraries ended up containing a neighbor's face as a positive reference.
+CX_TOL = 110
 MIN_FACE_W = 60
 WINDOW_PRE_PAD_S = 0.5
 COMMIT_PAD_S = 2.0
@@ -129,40 +134,58 @@ class BehaviorExtractor:
         self.fps = self.cap.get(cv2.CAP_PROP_FPS) or 30.0
         self._build_reference_chips()
 
-    def _build_reference_chips(self) -> None:
-        face = FaceTracker()
-        # Synthetic monotonic timestamps: reference frames are unordered
-        # seeks across players, and VIDEO mode rejects backward timestamps.
-        ts_ms = 0
-        def chip_at(spec: dict, ref: PlayerRef) -> np.ndarray | None:
-            nonlocal ts_ms
-            self.cap.set(cv2.CAP_PROP_POS_MSEC, float(spec["t"]) * 1000)
-            ok, frame = self.cap.read()
-            if not ok:
-                return None
-            crop = self._search_crop(frame, ref)
-            ts_ms += 40
-            faces = face.process(crop, ts_ms)
-            if not faces:
-                return None
-            target_cx = float(spec["cx"]) - ref.search[0]
-            _, bbox = min(
-                faces, key=lambda fb: abs(fb[1][0] + fb[1][2] / 2 - target_cx)
-            )
-            return face_chip(crop, bbox)
+    def _chip_at(self, spec: dict, ref: PlayerRef) -> "np.ndarray | None":
+        """Chip for one reference spec, or None with a recorded warning.
 
+        A fresh tracker per frame keeps detection deterministic (warm
+        VIDEO-mode state changes what gets detected), and the CX_TOL bound
+        refuses to enroll a face that is not where the spec says the
+        player is: those two gaps let neighbors into reference libraries.
+        """
+        self.cap.set(cv2.CAP_PROP_POS_MSEC, float(spec["t"]) * 1000)
+        ok, frame = self.cap.read()
+        if not ok:
+            self.ref_warnings.append(f"t={spec['t']}: frame unreadable")
+            return None
+        crop = self._search_crop(frame, ref)
+        face = FaceTracker()
         try:
-            for name, ref in self.seats.items():
-                ref.chips = [c for s in ref.face_refs if (c := chip_at(s, ref)) is not None]
-                if not ref.chips:
-                    raise ValueError(f"no reference chips built for {name}")
-                ref.neg_chips = [
-                    c for s in ref.distractors if (c := chip_at(s, ref)) is not None
-                ]
-                if ref.distractors and not ref.neg_chips:
-                    raise ValueError(f"no distractor chips built for {name}")
+            faces = face.process(crop, 40)
         finally:
             face.close()
+        target_cx = float(spec["cx"]) - ref.search[0]
+        in_tol = [
+            fb for fb in faces if abs(fb[1][0] + fb[1][2] / 2 - target_cx) <= CX_TOL
+        ]
+        if not in_tol:
+            found = [int(ref.search[0] + fb[1][0] + fb[1][2] / 2) for fb in faces]
+            self.ref_warnings.append(
+                f"t={spec['t']}: no face within {CX_TOL}px of cx={spec['cx']} "
+                f"(detected at {found})"
+            )
+            return None
+        _, bbox = min(
+            in_tol, key=lambda fb: abs(fb[1][0] + fb[1][2] / 2 - target_cx)
+        )
+        return face_chip(crop, bbox)
+
+    def _build_reference_chips(self) -> None:
+        self.ref_warnings: list[str] = []
+        for name, ref in self.seats.items():
+            ref.chips = [
+                c for s in ref.face_refs if (c := self._chip_at(s, ref)) is not None
+            ]
+            if not ref.chips:
+                raise ValueError(
+                    f"no reference chips built for {name}: {self.ref_warnings}"
+                )
+            ref.neg_chips = [
+                c for s in ref.distractors if (c := self._chip_at(s, ref)) is not None
+            ]
+            if ref.distractors and not ref.neg_chips:
+                raise ValueError(
+                    f"no distractor chips built for {name}: {self.ref_warnings}"
+                )
 
     @staticmethod
     def _search_crop(frame: np.ndarray, ref: PlayerRef) -> np.ndarray:
