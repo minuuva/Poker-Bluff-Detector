@@ -46,6 +46,23 @@ Airball, Big Mike), whose probe frames parse with the frozen layout.
 The substitution was decided from probe frames only, before any
 extraction, labeling, or model output on either session.
 
+## Result (recorded 2026-07-22, after the test ran exactly as specified)
+
+FAILED REPLICATION. Pooled leave-one-session-out delta AUC for face and
+pose features over the betting baseline, is_weak, behavior-covered
+decisions across all four sessions (n=292; per-session covered rows
+osFhAW7BFMs 72, loAuriiBRCk 114, ObmthwbEXCI 51, CyQRb173NfA 55):
+
+    delta AUC -0.075, hand-grouped bootstrap 95% CI [-0.134, -0.020]
+
+The CI excludes zero on the negative side: the features not only fail
+to add predictive power out of session, they measurably subtract it,
+consistent with ten noisy dimensions overfitting a small training set.
+The hypothesis is not supported. No post-hoc adjustments were made; the
+pipeline ran at the settings frozen in this document (with the one
+documented enrollment bug fix, commit 6c64853, applied identically to
+every session before any new-session model output was seen).
+
 ## What is not allowed
 
 Re-tuning thresholds, swapping models, moving the coverage cutoff,

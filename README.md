@@ -52,6 +52,16 @@ session, test on the other, pool the out-of-fold predictions.
 The betting-only baseline scores AUC 0.55 on all 670 labeled aggressive
 decisions (cross-session; the same model scores 0.75 within-session).
 
+**Preregistered replication (iteration 4): FAILED, decisively.** Two new
+sessions (Jul 4 and Apr 25, 2026) were selected, seat-mapped with
+commit-moment evidence, and distractor-audited before any model output,
+under a preregistered analysis plan (docs/prereg_iteration4.md) committed
+before the footage was downloaded. The pooled four-session test of the
+face-and-pose hypothesis returned delta AUC -0.075 with a hand-grouped
+bootstrap 95% CI of [-0.134, -0.020]: behavioral features not only fail
+to add out-of-session predictive power at this scale, they measurably
+subtract it, which is what noisy added dimensions do to a small model.
+
 The honest reading is the story of an artifact, and it is the project's
 most instructive result.
 
