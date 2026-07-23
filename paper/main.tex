@@ -112,13 +112,18 @@ degradation across domains \citep{guo2023dolos}. Our result extends this
 pattern to a naturalistic, high-stakes, repeated-game setting with
 objective ground truth.
 
-\textbf{Person identification hygiene.} Face verification under
-compression, occlusion (sunglasses are endemic at poker tables), and pose
-variation is well studied, but its role as a silent label-noise channel in
-behavioral datasets is underappreciated. Our artifact is a concrete
-instance of attribution noise manufacturing a positive finding, a failure
-mode related to identity leakage discussed in re-identification literature
-but, in our case, corrupting the features rather than the labels.
+\textbf{Person identification hygiene.} Face verification
+\citep{deng2019arcface} and person re-identification \citep{zheng2016person}
+under compression, occlusion (sunglasses are endemic at poker tables), and
+pose variation are well studied, and deciding whether a detected face
+belongs to an enrolled identity at all is the classic open-set problem
+\citep{scheirer2013open}; our initial fixed-threshold gate is exactly the
+naive open-set design that literature warns against. What is
+underappreciated is the role of attribution error as a silent noise channel
+in downstream behavioral datasets: label errors are known to destabilize
+benchmark conclusions \citep{northcutt2021pervasive}, and our artifact is
+the feature-side analogue, attribution noise manufacturing a positive
+finding out of another person's face.
 
 \textbf{Methodological safeguards.} We use preregistration
 \citep{nosek2018preregistration}, grouped bootstrap confidence intervals
@@ -162,8 +167,10 @@ log dimensionless jerk, which is amplitude-invariant by construction so it
 cannot encode bet size). Six event detectors (downward-gaze rate, hand
 near face, freeze fraction and longest freeze, chip-shuffle periodicity,
 forward lean) are rates, fractions, ratios, or shoulder-width geometry,
-and passed the same leakage review; they were separately shown to carry no
-signal and are excluded from the primary test by preregistration. All
+and passed the same leakage review; earlier two-session analyses showed
+them to carry no signal, the preregistration therefore excluded them from
+the primary test, and Section \ref{sec:sensitivity} confirms the null on
+the pooled data. All
 features are z-scored per player. Coverage is honest and low: the primary
 player's face passes identity gating in 10 to 33 percent of window frames
 depending on session, and 292 labeled decisions meet the 0.5 coverage
@@ -385,9 +392,12 @@ overfit them.
 All footage is publicly broadcast with player consent to the stream's
 hole-card exposure; we analyze it post hoc, redistribute no footage or
 identifiable imagery, and publish code, derived features, timestamps, and
-the preregistration rather than clips. Pipeline, analysis code, seat maps,
-audit tooling, and the frozen preregistration with its logged result are
-available in the project repository.
+the preregistration rather than clips. Pipeline, analysis code, seat maps, audit tooling, figure scripts, and
+the frozen preregistration with its logged result are available at
+\url{https://github.com/minuuva/Poker-Bluff-Detector} (private during
+review, public with publication); the full analysis history, including
+the artifact's discovery and every estimate in Figure \ref{fig:arc}, is
+preserved in that repository's commit log.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
