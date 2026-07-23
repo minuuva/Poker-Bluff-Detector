@@ -1,0 +1,53 @@
+\begin{thebibliography}{9}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Balasubramanian et~al.(2015)Balasubramanian, Melendez-Calderon, Roby-Brami, and Burdet]{balasubramanian2015analysis}
+Sivakumar Balasubramanian, Alejandro Melendez-Calderon, Agnes Roby-Brami, and Etienne Burdet.
+\newblock On the analysis of movement smoothness.
+\newblock \emph{Journal of NeuroEngineering and Rehabilitation}, 12\penalty0 (112), 2015.
+
+\bibitem[Casiez et~al.(2012)Casiez, Roussel, and Vogel]{casiez2012one}
+G{\'e}ry Casiez, Nicolas Roussel, and Daniel Vogel.
+\newblock 1\,euro filter: A simple speed-based low-pass filter for noisy input in interactive systems.
+\newblock In \emph{Proceedings of the SIGCHI Conference on Human Factors in Computing Systems (CHI)}, pages 2527--2530, 2012.
+
+\bibitem[Du et~al.(2020)Du, Li, Guo, Yin, Liu, Zhou, Bai, Yu, Yang, Dang, and Wang]{du2020ppocr}
+Yuning Du, Chenxia Li, Ruoyu Guo, Xiaoting Yin, Weiwei Liu, Jun Zhou, Yifan Bai, Zilin Yu, Yehua Yang, Qingqing Dang, and Haoshuang Wang.
+\newblock Pp-ocr: A practical ultra lightweight {OCR} system.
+\newblock \emph{arXiv preprint arXiv:2009.09941}, 2020.
+
+\bibitem[Efron and Tibshirani(1993)]{efron1993bootstrap}
+Bradley Efron and Robert~J. Tibshirani.
+\newblock \emph{An Introduction to the Bootstrap}.
+\newblock Chapman and Hall/CRC, 1993.
+
+\bibitem[Guo et~al.(2023)Guo, Selvaraj, Yu, Kong, Shen, and Kot]{guo2023dolos}
+Xiaobao Guo, Nithish~Muthuchamy Selvaraj, Zitong Yu, Adams Wai-Kin Kong, Bingquan Shen, and Alex Kot.
+\newblock Audio-visual deception detection: {DOLOS} dataset and parameter-efficient crossmodal learning.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, 2023.
+
+\bibitem[Hogan and Sternad(2009)]{hogan2009sensitivity}
+Neville Hogan and Dagmar Sternad.
+\newblock Sensitivity of smoothness measures to movement duration, amplitude, and arrests.
+\newblock \emph{Journal of Motor Behavior}, 41\penalty0 (6):\penalty0 529--534, 2009.
+
+\bibitem[Lugaresi et~al.(2019)Lugaresi, Tang, Nash, McClanahan, Uboweja, Hays, Zhang, Chang, Yong, Lee, Chang, Hua, Georg, and Grundmann]{lugaresi2019mediapipe}
+Camillo Lugaresi, Jiuqiang Tang, Hadon Nash, Chris McClanahan, Esha Uboweja, Michael Hays, Fan Zhang, Chuo-Ling Chang, Ming~Guang Yong, Juhyun Lee, Wan-Teh Chang, Wei Hua, Manfred Georg, and Matthias Grundmann.
+\newblock Mediapipe: A framework for building perception pipelines.
+\newblock \emph{arXiv preprint arXiv:1906.08172}, 2019.
+
+\bibitem[Nosek et~al.(2018)Nosek, Ebersole, DeHaven, and Mellor]{nosek2018preregistration}
+Brian~A. Nosek, Charles~R. Ebersole, Alexander~C. DeHaven, and David~T. Mellor.
+\newblock The preregistration revolution.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 115\penalty0 (11):\penalty0 2600--2606, 2018.
+
+\bibitem[Slepian et~al.(2013)Slepian, Young, Rutchick, and Ambady]{slepian2013quality}
+Michael~L. Slepian, Steven~G. Young, Abraham~M. Rutchick, and Nalini Ambady.
+\newblock Quality of professional poker players' poker hands is perceivable from their movements.
+\newblock \emph{Psychological Science}, 24\penalty0 (11):\penalty0 2335--2338, 2013.
+
+\end{thebibliography}
