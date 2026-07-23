@@ -10,7 +10,7 @@
 Hand Strength in Broadcast Poker: A Preregistered Replication Failure and a
 Case Study in Identity-Contamination Artifacts}
 
-\author{Author redacted for draft\\ University of Virginia}
+\author{Minu Choi\\ University of Virginia\\ \texttt{qce2dp@virginia.edu}}
 \date{Draft of July 23, 2026}
 
 \begin{document}
@@ -145,9 +145,10 @@ segmentation robust to the two background styles in our footage. A state
 machine folds snapshots into hands and decision windows: a window opens
 when a player's panel shows an amount to call and closes at their action
 flip; cutaway gaps are re-merged when positions and hole cards agree; a
-preroll filter drops inset replays of older sessions. Across the four
-sessions this yields 834 hands and 5{,}639 decisions, 4{,}815 of them with
-equity labels (Monte Carlo equity versus a random hand, deterministic
+preroll filter drops inset replays of older sessions. Table
+\ref{tab:data} summarizes the result: 722 hands and 5{,}639 decisions
+across the four sessions, 4{,}815 of them with equity labels (Monte Carlo
+equity versus a random hand, deterministic
 seeds; six strength classes; \texttt{is\_weak} marks decisions taken with
 equity below 0.45, \texttt{is\_bluff} marks aggressive such decisions).
 
@@ -174,6 +175,27 @@ Baselines use betting features only (position, sizing ratios, pot odds,
 street, prior raises, stack-to-pot, timing). Deltas are reported with
 hand-grouped bootstrap 95\% CIs (2{,}000 resamples), resampling hands so
 correlated decisions within a hand never narrow the interval.
+
+
+\begin{table}[t]
+\centering
+\caption{Dataset summary. A decision is covered when at least half of its
+window frames pass identity gating (face) or pose tracking for a mapped
+player; only covered, labeled decisions enter the ablations.}
+\label{tab:data}
+\begin{tabular}{lrrrrrr}
+\toprule
+Session & Hours & Snapshots & Hands & Decisions & Labeled & Covered \\
+\midrule
+Feb 2026     & 5.2 & 17{,}501 & 141 & 1{,}320 & 1{,}163 & 114 \\
+Apr 2026     & 5.5 & 18{,}814 & 164 & 1{,}188 & 1{,}027 & 55 \\
+Jul 2026 (a) & 5.2 & 18{,}436 & 225 & 1{,}561 & 1{,}278 & 51 \\
+Jul 2026 (b) & 5.9 & 20{,}730 & 192 & 1{,}570 & 1{,}347 & 72 \\
+\midrule
+Total        & 21.8 & 75{,}481 & 722 & 5{,}639 & 4{,}815 & 292 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{The identity-contamination artifact}
 \label{sec:artifact}
@@ -309,6 +331,15 @@ moves the behavior-only AUC from $0.349$ to $0.387$ and the delta to
 $-0.056$ $[-0.115, -0.004]$. Session offsets are therefore a real
 confound channel that future work must normalize away, and still not the
 whole story.
+
+
+\textbf{The event detectors are a true null, not an inversion.} As
+secondary arms on the pooled four-session data, the six leakage-proofed
+event detectors alone give $+0.011$ $[-0.037, +0.063]$, and the union of
+all behavioral features gives $-0.060$ $[-0.128, +0.005]$. The contrast
+with face and pose is instructive: the low-dimensional detectors, built
+as rates and ratios with explicit leakage review, neither help nor hurt,
+while the richer face and pose summaries are the source of the inversion.
 
 \section{Discussion}
 
