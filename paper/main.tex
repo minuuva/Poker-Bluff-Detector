@@ -38,13 +38,17 @@ decisions), with approximately 91\% power to detect the registered
 $+0.096$. Sensitivity analyses show the degradation is not an artifact of
 estimator variance: no regularization scheme rescues the features, a
 behavior-only model is systematically anti-predictive out of session (AUC
-$0.349$), the effect persists within a single player across his four
+$0.349$, significantly below chance under a hand-level permutation test,
+$p = 0.018$), the effect persists within a single player across his four
 sessions, and only part of the inversion is explained by session-level
-camera-geometry offsets. We conclude that at broadcast scale and with
-tabular behavioral features, nonverbal behavior adds no out-of-session
-predictive power over betting action, and that identity hygiene, not
+camera-geometry offsets. Within sessions, by contrast, behavioral signal
+is marginal and heterogeneous (pooled cross-validated AUC $0.574$, 95\%
+CI $[0.492, 0.652]$; per-session $0.42$ to $0.68$). Whatever tells exist
+are session-local: carrying them to a new session is measurably worse
+than ignoring behavior entirely. We conclude that identity hygiene, not
 feature engineering, is the binding methodological risk for behavioral
-video datasets built on multi-person footage.
+video datasets built on multi-person footage, and that behavioral
+hand-strength models of this class do not generalize across sessions.
 \end{abstract}
 
 \section{Introduction}
@@ -90,14 +94,16 @@ was downloaded, face and pose features reduce pooled out-of-session AUC by
 $0.075$ (95\% CI $[-0.134, -0.020]$). The study had approximately 91\%
 power to detect the registered positive estimate.
 
-\textbf{(4) An anti-transfer finding} (Section \ref{sec:sensitivity}).
-Behavioral features are not merely uninformative: a behavior-only model
-scores AUC $0.349$ out of session, meaning learned behavior-to-strength
-associations systematically invert across sessions, including within the
-same player. Session-level normalization removes only part of the
-inversion. This is consistent with tells that are contextual and unstable
-rather than absent, but either way they are unusable by models of this
-class at this scale.
+\textbf{(4) A session-locality finding} (Section \ref{sec:sensitivity}).
+Behavioral features are not merely uninformative out of session: a
+behavior-only model scores AUC $0.349$, significantly below chance under
+a hand-level permutation test ($p = 0.018$), and the inversion persists
+within the same player across his four sessions. Within sessions the same
+features carry at most marginal, heterogeneous signal (pooled $0.574$,
+CI $[0.492, 0.652]$). Learned behavior-to-strength associations are
+session-specific in sign: real enough to fit, wrong enough to mislead on
+a new night. Tells, to the extent our features capture them, are
+session-local.
 
 \section{Related work}
 
@@ -339,6 +345,22 @@ $-0.056$ $[-0.115, -0.004]$. Session offsets are therefore a real
 confound channel that future work must normalize away, and still not the
 whole story.
 
+
+\textbf{The inversion is significant, and within-session signal is
+marginal.} Two further analyses locate the failure precisely. First, a
+permutation test that shuffles labels at the hand level within each
+session and re-runs the full cross-session pipeline places the observed
+behavior-only AUC of $0.349$ in the lower tail of its null (null mean
+$0.476$, SD $0.058$, $p = 0.018$): transfer is not merely absent but
+systematically inverted. Second, within-session grouped cross-validation
+(5-fold by hand, per session, pooled) gives a behavior-only AUC of
+$0.574$ with a hand-grouped bootstrap CI of $[0.492, 0.652]$, with
+per-session values ranging from $0.418$ to $0.676$. Together these say
+the model is not hallucinating: it finds real within-session structure
+in at least some sessions, but the sign of that structure is
+session-specific, so exporting it is worse than ignoring behavior. This
+is the paper's clearest positive characterization: behavioral
+hand-strength associations in this setting are session-local.
 
 \textbf{The event detectors are a true null, not an inversion.} As
 secondary arms on the pooled four-session data, the six leakage-proofed
