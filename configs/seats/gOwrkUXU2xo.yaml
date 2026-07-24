@@ -1,0 +1,24 @@
+# Seat map for session gOwrkUXU2xo (Jul 23 2026, "Rampage, Britney, Nik
+# Airball & Big Mike, $100/100").
+#
+# AIRBALL: shaved head, black sunglasses, cream hoodie this session,
+# centered by the tank camera in his long decision windows (references
+# from the t=18299 window facing $25,000 in a $107,400 pot, the
+# t=18837 window facing $229,000, and the t=6288 window facing
+# $15,700). Rampage sits to his left, outside the search region.
+# Distractor audit before any model output per prereg round 2.
+
+seats:
+  AIRBALL:
+    search: {x: 600, y: 0, w: 1000, h: 700}
+    face_refs:
+      - {t: 6288.0, cx: 990}
+      - {t: 18299.0, cx: 1060}
+      - {t: 18837.0, cx: 1090}
+    # Two frame-verified lookalikes above the gate inside the search
+    # region under non-tank cameras: the bearded white-shirt player
+    # (0.677) and the black-tee neighbor (0.698). The cx~1490 hits are
+    # Airball himself in the two-shot framing and are NOT registered.
+    distractors:
+      - {t: 11576.0, cx: 1347}
+      - {t: 17056.0, cx: 1519}
