@@ -1,17 +1,19 @@
-\documentclass[11pt]{article}
-\usepackage[margin=1in]{geometry}
+\documentclass[conference]{IEEEtran}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
-\usepackage[round]{natbib}
+\usepackage{url}
 \usepackage[hidelinks]{hyperref}
+\renewcommand{\ttdefault}{cmtt}
 
-\title{Nonverbal Behavior Does Not Add Out-of-Session Predictive Power for
-Hand Strength in Broadcast Poker: A Preregistered Replication Failure and a
-Case Study in Identity-Contamination Artifacts}
+\title{Automated Nonverbal Behavior Analysis for Hand-Strength Prediction
+and Cross-Session Generalization in Broadcast Poker}
 
-\author{Minu Choi\\ University of Virginia\\ \texttt{qce2dp@virginia.edu}}
-\date{Draft of July 23, 2026}
+\author{\IEEEauthorblockN{Minu Choi}
+\IEEEauthorblockA{School of Data Science\\
+University of Virginia\\
+Charlottesville, VA\\
+qce2dp@virginia.edu}}
 
 \begin{document}
 \maketitle
@@ -51,6 +53,11 @@ video datasets built on multi-person footage, and that behavioral
 hand-strength models of this class do not generalize across sessions.
 \end{abstract}
 
+\begin{IEEEkeywords}
+nonverbal behavior, poker, deception detection, person re-identification,
+preregistration, broadcast video analysis, negative results
+\end{IEEEkeywords}
+
 \section{Introduction}
 
 Poker folklore holds that players leak the strength of their hands through
@@ -61,9 +68,9 @@ behind that idea is thinner than its television presence suggests. The best
 controlled result reports that naive observers judge professional players'
 hand quality above chance from arm movements alone, at modest effect sizes,
 while judgments from the face are at or below chance
-\citep{slepian2013quality}. Automated deception detection benchmarks report
+\cite{slepian2013quality}. Automated deception detection benchmarks report
 within-domain accuracies in the sixties and cross-domain transfer barely
-above chance \citep{guo2023dolos}. No prior work, to our knowledge, has
+above chance \cite{guo2023dolos}. No prior work, to our knowledge, has
 tested the broadcast-poker claim end to end: does adding automatically
 extracted nonverbal behavior improve prediction of hand strength over the
 betting action alone, evaluated out of session, on public footage?
@@ -105,42 +112,41 @@ session-specific in sign: real enough to fit, wrong enough to mislead on
 a new night. Tells, to the extent our features capture them, are
 session-local.
 
-\section{Related work}
+\section{Related Work}
 
 \textbf{Behavioral cues to poker hand strength.}
-\citet{slepian2013quality} showed observers rate hand quality above chance
+Slepian et al.\ \cite{slepian2013quality} showed observers rate hand quality above chance
 from short clips of arm motion (smoothness of the chip push), while
 face-only clips were directionally below chance. This motivates our
 smoothness features and our expectation that any true effect is small. Work
 on automated deception detection in the wild reports within-domain
 accuracy around 60 to 67 percent on acted and courtroom corpora and severe
-degradation across domains \citep{guo2023dolos}. Our result extends this
+degradation across domains \cite{guo2023dolos}. Our result extends this
 pattern to a naturalistic, high-stakes, repeated-game setting with
 objective ground truth.
 
 \textbf{Person identification hygiene.} Face verification
-\citep{deng2019arcface} and person re-identification \citep{zheng2016person}
+\cite{deng2019arcface} and person re-identification \cite{zheng2016person}
 under compression, occlusion (sunglasses are endemic at poker tables), and
 pose variation are well studied, and deciding whether a detected face
 belongs to an enrolled identity at all is the classic open-set problem
-\citep{scheirer2013open}; our initial fixed-threshold gate is exactly the
+\cite{scheirer2013open}; our initial fixed-threshold gate is exactly the
 naive open-set design that literature warns against. What is
 underappreciated is the role of attribution error as a silent noise channel
 in downstream behavioral datasets: label errors are known to destabilize
-benchmark conclusions \citep{northcutt2021pervasive}, and our artifact is
+benchmark conclusions \cite{northcutt2021pervasive}, and our artifact is
 the feature-side analogue, attribution noise manufacturing a positive
 finding out of another person's face.
 
 \textbf{Methodological safeguards.} We use preregistration
-\citep{nosek2018preregistration}, grouped bootstrap confidence intervals
-\citep{efron1993bootstrap}, and leakage review of engineered features.
-Trajectory smoothness metrics follow \citet{balasubramanian2015analysis}
-and \citet{hogan2009sensitivity}; keypoint trajectories are One-Euro
-filtered \citep{casiez2012one} before any derivative is taken; face and
-pose streams come from MediaPipe \citep{lugaresi2019mediapipe}; OCR uses
-PP-OCR \citep{du2020ppocr}.
+\cite{nosek2018preregistration}, grouped bootstrap confidence intervals
+\cite{efron1993bootstrap}, and leakage review of engineered features.
+Trajectory smoothness metrics follow \cite{balasubramanian2015analysis}, \cite{hogan2009sensitivity}; keypoint trajectories are One-Euro
+filtered \cite{casiez2012one} before any derivative is taken; face and
+pose streams come from MediaPipe \cite{lugaresi2019mediapipe}; OCR uses
+PP-OCR \cite{du2020ppocr}.
 
-\section{Data and pipeline}
+\section{Data}
 \label{sec:pipeline}
 
 \textbf{Footage.} Four complete Hustler Casino Live cash-game sessions
@@ -149,7 +155,10 @@ professional (all four sessions) and a second recreational player (one
 session). The stream exposes hole cards in its graphics, providing ground
 truth without any inference from behavior.
 
-\textbf{Game state.} Region-cropped OCR reads the pot, stakes, board, and
+\section{Methodology}
+
+\subsection{Preprocessing and Game-State Extraction}
+Region-cropped OCR reads the pot, stakes, board, and
 per-player panels (name, stack, action text, amount to call) once per
 second; card sprites are template-matched with a saturation-gated
 segmentation robust to the two background styles in our footage. A state
@@ -163,7 +172,8 @@ equity versus a random hand, deterministic
 seeds; six strength classes; \texttt{is\_weak} marks decisions taken with
 equity below 0.45, \texttt{is\_bluff} marks aggressive such decisions).
 
-\textbf{Behavioral features.} For each decision window of a mapped player,
+\subsection{Behavioral Feature Extraction}
+For each decision window of a mapped player,
 frames are searched for the player's face (Section \ref{sec:artifact});
 accepted frames contribute blendshape series (blink rate, smile asymmetry
 and mean, gaze dispersion, brow activity) and a pose crop that follows the
@@ -182,7 +192,8 @@ player's face passes identity gating in 10 to 33 percent of window frames
 depending on session, and 292 labeled decisions meet the 0.5 coverage
 threshold.
 
-\textbf{Evaluation.} Leave-one-session-out (LOSO): models train on all
+\subsection{Evaluation Protocol}
+Leave-one-session-out (LOSO): models train on all
 other sessions and predict the held-out session; predictions are pooled.
 Baselines use betting features only (position, sizing ratios, pot odds,
 street, prior raises, stack-to-pot, timing). Deltas are reported with
@@ -192,6 +203,8 @@ correlated decisions within a hand never narrow the interval.
 
 \begin{table}[t]
 \centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
 \caption{Dataset summary. A decision is covered when at least half of its
 window frames pass identity gating (face) or pose tracking for a mapped
 player; only covered, labeled decisions enter the ablations.}
@@ -210,7 +223,29 @@ Total        & 21.8 & 75{,}481 & 722 & 5{,}639 & 4{,}815 & 292 \\
 \end{tabular}
 \end{table}
 
-\section{The identity-contamination artifact}
+\subsection{Identity Attribution}
+\label{sec:identity}
+
+Attributing faces on a multi-person broadcast requires deciding, per
+frame, whether a detected face is the tracked player. Our initial design
+used an open-set rule: accept the first face whose equalized grayscale
+patch correlates at least $0.55$ with any enrolled reference patch of the
+player, a threshold chosen from a measured same-player/cross-player
+separation of $0.74$ versus $0.25$. Section \ref{sec:artifact} documents
+how three gaps in this design manufactured a spurious finding; the
+corrected protocol is: (i) enroll references deterministically, one
+detector instance per reference frame; (ii) bound enrollment by position
+and refuse specifications whose intended face is not found; (iii) verify
+every enrolled patch by eye; (iv) sweep each session for faces that score
+above threshold against the references, and register every non-target
+such face as a distractor; (v) attribute a face only if it clears the
+threshold and beats every distractor score by a margin, best candidate
+wins; (vi) treat staff and commentators as candidate distractors too (one
+of ours scored $0.60$).
+
+\section{Results}
+
+\subsection{The Identity-Contamination Artifact}
 \label{sec:artifact}
 
 \begin{figure}[t]
@@ -225,13 +260,8 @@ four-session test.}
 \label{fig:arc}
 \end{figure}
 
-Attributing faces on a multi-person broadcast requires deciding, per
-frame, whether a detected face is the tracked player. Our initial design
-used an open-set rule: accept the first face whose equalized grayscale
-patch correlates at least $0.55$ with any enrolled reference patch of the
-player, a threshold chosen from a measured same-player/cross-player
-separation of $0.74$ versus $0.25$. Three gaps turned this into a
-contamination channel.
+Three gaps in the initial identity design of Section
+\ref{sec:identity} turned face attribution into a contamination channel.
 
 \textbf{Gap 1: lookalikes above threshold.} A neighboring player
 correlated $0.66$ with the tracked player's references. Whenever the
@@ -265,17 +295,7 @@ is mundane: another person's face, measured during the tracked player's
 decisions, covaries with decision context (cameras cut to neighbors during
 long tanks) in ways that imitate a tell.
 
-\textbf{Protocol.} The resulting checklist is short: (i) enroll references
-deterministically, one detector instance per reference frame; (ii) bound
-enrollment by position and refuse specifications whose intended face is
-not found; (iii) verify every enrolled patch by eye; (iv) sweep each
-session for faces that score above threshold against the references, and
-register every non-target such face as a distractor; (v) attribute a face
-only if it clears the threshold and beats every distractor score by a
-margin, best candidate wins; (vi) treat staff and commentators as
-candidate distractors too (one of ours scored $0.60$).
-
-\section{Preregistered replication}
+\subsection{Preregistered Replication}
 \label{sec:prereg}
 
 Before downloading any new footage we froze, in a committed
@@ -303,7 +323,7 @@ effects at the 2.5\% level. The betting-only baseline itself scores AUC
 $0.549$ pooled out of session, against $0.75$ within session, replicating
 the known brutality of cross-session transfer.
 
-\section{Why negative, not just null}
+\subsection{Model Results: Why Negative, Not Just Null}
 \label{sec:sensitivity}
 
 \begin{figure}[t]
@@ -346,16 +366,37 @@ confound channel that future work must normalize away, and still not the
 whole story.
 
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/permutation_null.pdf}
+\caption{The below-chance transfer is significant. Hand-level label
+permutations within each session, re-running the full cross-session
+pipeline per draw (500 draws), place the observed behavior-only AUC in
+the null's lower tail ($p = 0.018$).}
+\label{fig:perm}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/session_locality.pdf}
+\caption{Session locality. Within-session grouped cross-validation finds
+marginal, heterogeneous behavioral signal; the same features transfer
+significantly below chance across sessions.}
+\label{fig:locality}
+\end{figure}
+
 \textbf{The inversion is significant, and within-session signal is
 marginal.} Two further analyses locate the failure precisely. First, a
 permutation test that shuffles labels at the hand level within each
 session and re-runs the full cross-session pipeline places the observed
-behavior-only AUC of $0.349$ in the lower tail of its null (null mean
-$0.476$, SD $0.058$, $p = 0.018$): transfer is not merely absent but
-systematically inverted. Second, within-session grouped cross-validation
+behavior-only AUC of $0.349$ (hand-grouped bootstrap CI $[0.279, 0.429]$,
+entirely below chance) in the lower tail of its null (null mean $0.476$,
+SD $0.058$, $p = 0.018$; Figure \ref{fig:perm}): transfer is not merely
+absent but systematically inverted. Second, within-session grouped cross-validation
 (5-fold by hand, per session, pooled) gives a behavior-only AUC of
 $0.574$ with a hand-grouped bootstrap CI of $[0.492, 0.652]$, with
-per-session values ranging from $0.418$ to $0.676$. Together these say
+per-session values ranging from $0.418$ to $0.676$ (Figure
+\ref{fig:locality}). Together these say
 the model is not hallucinating: it finds real within-session structure
 in at least some sessions, but the sign of that structure is
 session-specific, so exporting it is worse than ignoring behavior. This
@@ -409,7 +450,24 @@ summaries; sequence models over raw streams remain untested here, though
 they face the same coverage and identity constraints with more capacity to
 overfit them.
 
-\section{Ethics and reproducibility}
+\section{Conclusion}
+
+We built an end-to-end pipeline from broadcast poker video to labeled
+decision-level behavioral data and asked whether nonverbal behavior adds
+predictive power over betting action for hand strength. The answer, under
+a preregistered and adequately powered test, is that it subtracts:
+behavior-strength associations are learnable within a session but their
+signs are session-specific, so models that carry them to a new session
+perform significantly below chance. Along the way we showed how easily
+the opposite conclusion is manufactured: a single misattributed face in a
+reference library produced a nominally significant positive effect that
+survived partial cleaning. The attribution-hygiene protocol, the
+preregistration, and the full analysis history are released with the
+code. For behavioral video research, the order of operations this study
+recommends is: verify identity first, preregister second, and only then
+believe an effect.
+
+\section{Ethics and Reproducibility}
 
 All footage is publicly broadcast with player consent to the stream's
 hole-card exposure; we analyze it post hoc, redistribute no footage or
@@ -421,7 +479,7 @@ review, public with publication); the full analysis history, including
 the artifact's discovery and every estimate in Figure \ref{fig:arc}, is
 preserved in that repository's commit log.
 
-\bibliographystyle{plainnat}
+\bibliographystyle{IEEEtran}
 \bibliography{references}
 
 \end{document}

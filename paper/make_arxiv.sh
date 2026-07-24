@@ -9,6 +9,8 @@ bibtex main > /dev/null
 pdflatex -interaction=nonstopmode main.tex > /dev/null
 pdflatex -interaction=nonstopmode main.tex > /dev/null
 mkdir -p dist
-tar czf dist/arxiv.tar.gz main.tex main.bbl figures/artifact_arc.pdf figures/sensitivity_forest.pdf
+tar czf dist/arxiv.tar.gz main.tex main.bbl IEEEtran.cls IEEEtran.bst \
+  figures/artifact_arc.pdf figures/sensitivity_forest.pdf \
+  figures/permutation_null.pdf figures/session_locality.pdf
 echo "wrote dist/arxiv.tar.gz:"
 tar tzf dist/arxiv.tar.gz
