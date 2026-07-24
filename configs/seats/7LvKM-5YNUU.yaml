@@ -1,0 +1,22 @@
+# Seat map for session 7LvKM-5YNUU (Mar 14 2026, "Britney, Nik Airball,
+# Senor Tilt & Turbo, $100/100 with straddles").
+#
+# AIRBALL: shaved head, black sunglasses, gray hoodie this session.
+# Commit evidence: framed adjacent to his RAISE $5,000 flip at t=9322
+# (Q2o at 5 percent, a bluff) and his RAISE $1,500 flip at t=9865; the
+# t=18425 tank frame shows him centered at a closer zoom. Senor Tilt
+# (Tilt Town cap) sits to his right; a companion sits to his left.
+# Distractor audit runs before any model output per prereg round 2.
+
+seats:
+  AIRBALL:
+    search: {x: 200, y: 0, w: 1300, h: 700}
+    face_refs:
+      - {t: 9322.5, cx: 560}
+      - {t: 12167.0, cx: 578}
+      - {t: 18425.0, cx: 1120}
+    # Near-miss lookalike from the audit sweep (young man in sunglasses,
+    # 0.512 against the references, 0.04 under the gate): registered
+    # conservatively.
+    distractors:
+      - {t: 18167.0, cx: 1306}
