@@ -263,6 +263,26 @@ def extract_behavior(
 
 
 @app.command()
+def embed(
+    video: Path,
+    hands_file: Path,
+    seats: Path,
+) -> None:
+    """Extract frozen DINOv2 embeddings per decision (prereg round 2)."""
+    from pokertell.behavior.embed import extract_session_embeddings
+
+    paths = default_paths().ensure()
+    session_id = hands_file.stem.replace(".hands", "")
+    out = paths.features / f"{session_id}.embeddings.csv"
+
+    def progress(hand_id: str, player: str, n: int) -> None:
+        typer.echo(f"{hand_id} {player[:14]:14s} embedded frames={n}")
+
+    df = extract_session_embeddings(video, hands_file, seats, out, progress=progress)
+    typer.echo(f"wrote {len(df)} rows to {out}")
+
+
+@app.command()
 def label() -> None:
     """Build labeled decision tables from every hands file in data/hands."""
     import json
