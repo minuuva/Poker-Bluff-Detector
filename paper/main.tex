@@ -46,7 +46,10 @@ camera-geometry offsets. Within sessions, by contrast, behavioral signal
 is marginal and heterogeneous (pooled cross-validated AUC $0.574$, 95\%
 CI $[0.492, 0.652]$; per-session $0.42$ to $0.68$). Whatever tells exist
 are session-local: carrying them to a new session is measurably worse
-than ignoring behavior entirely. We conclude that identity hygiene, not
+than ignoring behavior entirely. Decision timing, which needs no camera
+and is available for all 4{,}815 labeled decisions, is bounded below
+$+0.01$ AUC over betting action, with a resolvable but negligible
+improvement on a continuous equity target ($\Delta\rho = +0.005$). We conclude that identity hygiene, not
 feature engineering, is the binding methodological risk for behavioral
 video datasets built on multi-person footage, and that behavioral
 hand-strength models of this class do not generalize across sessions.
@@ -398,7 +401,9 @@ per-session values ranging from $0.418$ to $0.676$ (Figure
 \ref{fig:locality}). Together these say
 the model is not hallucinating: it finds real within-session structure
 in at least some sessions, but the sign of that structure is
-session-specific, so exporting it is worse than ignoring behavior. This
+session-specific (Table \ref{tab:signs}: no feature keeps its fitted
+sign across all four sessions), so exporting it is worse than ignoring
+behavior. This
 is the paper's clearest positive characterization: behavioral
 hand-strength associations in this setting are session-local.
 
@@ -409,6 +414,51 @@ all behavioral features gives $-0.060$ $[-0.128, +0.005]$. The contrast
 with face and pose is instructive: the low-dimensional detectors, built
 as rates and ratios with explicit leakage review, neither help nor hurt,
 while the richer face and pose summaries are the source of the inversion.
+
+\subsection{Decision Timing and Continuous Targets}
+
+Two further analyses use the label information more efficiently.
+\textbf{Decision timing at full power.} Time to act needs no camera, so
+it is available for all 4{,}815 labeled decisions of every player, not
+just the 292 camera-covered ones. Added to the betting baseline it
+changes \texttt{is\_weak} AUC by $+0.004$ (95\% CI $[-0.002, +0.010]$)
+and \texttt{is\_bluff} by $-0.000$ $[-0.005, +0.004]$: the most cited
+poker tell, tank duration, is bounded below one hundredth of AUC in this
+setting. \textbf{Continuous equity.} Regressing Monte Carlo equity
+directly (ridge, out-of-session Spearman correlation) uses the full
+label rather than a threshold. The face and pose degradation replicates
+and tightens ($\Delta\rho = -0.099$, CI $[-0.144, -0.047]$ on covered
+rows), while timing shows the study's only resolvable positive effect,
+at negligible magnitude ($\Delta\rho = +0.005$, CI $[+0.002, +0.008]$,
+$n = 4{,}815$). The latter matters mainly as a sensitivity check: the
+pipeline and evaluation resolve genuinely small effects when the sample
+allows, so the behavioral nulls are not an artifact of blunt
+instruments.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{No behavioral feature keeps its coefficient sign across all
+four sessions (behavior-only logistic model per session,
+\texttt{is\_weak}, standardized features; $+$/$-$ is the fitted sign).}
+\label{tab:signs}
+\begin{tabular}{lcccc}
+\toprule
+Feature & Feb & Apr & Jul (a) & Jul (b) \\
+\midrule
+blink rate & $+$ & $-$ & $+$ & $+$ \\
+smile asymmetry & $-$ & $-$ & $-$ & $+$ \\
+smile mean & $+$ & $-$ & $+$ & $-$ \\
+gaze dispersion & $+$ & $-$ & $+$ & $+$ \\
+brow activity & $+$ & $+$ & $+$ & $-$ \\
+wrist peak speed & $+$ & $+$ & $-$ & $-$ \\
+wrist smoothness (LDJ) & $+$ & $+$ & $-$ & $+$ \\
+wrist SPARC & $+$ & $+$ & $-$ & $-$ \\
+lean variability & $-$ & $-$ & $-$ & $+$ \\
+head motion & $-$ & $-$ & $+$ & $-$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Discussion}
 
