@@ -125,16 +125,21 @@ def permutation_null():
 
 
 def session_locality():
-    """Within-session vs cross-session behavior-only AUC (is_weak)."""
+    """Within vs cross-session behavior-only AUC, all eight sessions
+    (prereg round 2 experiment B, recorded 2026-07-25)."""
     rows = [
-        ("Within, Feb 2026 (n=114)", 0.472, None, None, False),
+        ("Within, Oct 2025 (n=75)", 0.756, None, None, False),
+        ("Within, Dec 2025 (n=26)", 0.257, None, None, False),
+        ("Within, Feb 2026 (n=114)", 0.466, None, None, False),
+        ("Within, Mar 2026 (n=31)", 0.571, None, None, False),
         ("Within, Apr 2026 (n=55)", 0.548, None, None, False),
         ("Within, Jul 2026 (a) (n=51)", 0.676, None, None, False),
         ("Within, Jul 2026 (b) (n=72)", 0.418, None, None, False),
-        ("Within, pooled (n=292)", 0.574, 0.492, 0.652, False),
-        ("Cross-session, pooled (n=292)", 0.349, 0.279, 0.429, True),
+        ("Within, Jul 2026 (c) (n=70)", 0.351, None, None, False),
+        ("Within, pooled (n=494)", 0.587, 0.515, 0.655, False),
+        ("Cross-session, pooled (n=494)", 0.430, 0.358, 0.502, True),
     ]
-    fig, ax = plt.subplots(figsize=(3.6, 2.6))
+    fig, ax = plt.subplots(figsize=(3.6, 3.4))
     ys = range(len(rows), 0, -1)
     for y, (label, d, lo, hi, confirm) in zip(ys, rows):
         color = CONFIRM if confirm else ACCENT

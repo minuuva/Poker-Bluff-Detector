@@ -62,3 +62,23 @@ Fixed plan:
 Threshold tuning, coverage-cutoff changes, model swaps, or dropping
 sessions after seeing results. Pipeline bug fixes forced by new footage
 are committed, documented, and trigger a full rerun, as in round 1.
+
+
+## Results (recorded 2026-07-25, after both tests ran as specified)
+
+Experiment A: NULL. Pooled LOSO delta of the DINOv2 probe over the
+betting baseline on the four original sessions: +0.012, hand-grouped
+bootstrap 95% CI [-0.079, +0.103], n=257 embedding-covered decisions.
+Per interpretation rule 4 this extends the feature-artifact conclusion
+to a standard learned representation. Nuance recorded: the embedding
+probe alone transfers at 0.545 (not inverted, unlike hand-crafted
+features), and within sessions it scores 0.398, CI [0.320, 0.476],
+below chance, consistent with high-dimensional instability at small n.
+
+Experiment B: RESOLVED POSITIVE. Pooled within-session grouped 5-fold
+behavior-only AUC across all eight sessions: 0.587, hand-grouped
+bootstrap 95% CI [0.515, 0.655], n=494. The CI excludes 0.5, meeting
+resolution criterion 3. Per-session AUCs range 0.26 to 0.76. The
+secondary cross-session arm on the enlarged pool remains at or below
+chance (behavior-only LOSO 0.430, CI [0.358, 0.502]; face and pose
+delta over betting -0.034, CI [-0.080, +0.012]).

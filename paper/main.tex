@@ -42,14 +42,19 @@ behavior-only model is systematically anti-predictive out of session (AUC
 $0.349$, significantly below chance under a hand-level permutation test,
 $p = 0.018$), the effect persists within a single player across his four
 sessions, and only part of the inversion is explained by session-level
-camera-geometry offsets. Within sessions, by contrast, behavioral signal
-is marginal and heterogeneous (pooled cross-validated AUC $0.574$, 95\%
-CI $[0.492, 0.652]$; per-session $0.42$ to $0.68$). Whatever tells exist
-are session-local: carrying them to a new session is measurably worse
-than ignoring behavior entirely. Decision timing, which needs no camera
-and is available for all 4{,}815 labeled decisions, is bounded below
-$+0.01$ AUC over betting action, with a resolvable but negligible
-improvement on a continuous equity target ($\Delta\rho = +0.005$). We conclude that identity hygiene, not
+camera-geometry offsets. Within sessions, by contrast, round 1 found suggestive
+signal (pooled cross-validated AUC $0.574$, CI $[0.492, 0.652]$). In a second
+preregistered round on an enlarged corpus of eight sessions (46.6 hours,
+9{,}801 labeled decisions, 494 camera-covered), the within-session
+question resolved positive: pooled within-session behavior-only AUC is
+$0.587$ (95\% CI $[0.515, 0.655]$), excluding chance under the frozen
+criterion, while cross-session transfer stays at or below chance
+($0.430$, $[0.358, 0.502]$). A preregistered frozen DINOv2 embedding
+probe adds nothing over betting action out of session ($+0.012$,
+$[-0.079, +0.103]$), extending the conclusion to learned
+representations. Tells therefore exist and are machine-readable within a
+session, and do not transfer across sessions. Decision timing, which
+needs no camera, is bounded below $+0.01$ AUC over betting action. We conclude that identity hygiene, not
 feature engineering, is the binding methodological risk for behavioral
 video datasets built on multi-person footage, and that behavioral
 hand-strength models of this class do not generalize across sessions.
@@ -108,11 +113,11 @@ Behavioral features are not merely uninformative out of session: a
 behavior-only model scores AUC $0.349$, significantly below chance under
 a hand-level permutation test ($p = 0.018$), and the inversion persists
 within the same player across his four sessions. Within sessions the same
-features carry at most marginal, heterogeneous signal (pooled $0.574$,
-CI $[0.492, 0.652]$). Learned behavior-to-strength associations are
-session-specific in sign: real enough to fit, wrong enough to mislead on
-a new night. Tells, to the extent our features capture them, are
-session-local.
+features carry real signal, resolved in a second preregistered round on
+eight sessions (pooled $0.587$, CI $[0.515, 0.655]$, excluding chance).
+Learned behavior-to-strength associations are session-specific in sign:
+real enough to fit, wrong enough to mislead on a new night. Tells are
+session-local, at both ends of the claim.
 
 \section{Related Work}
 
@@ -151,10 +156,11 @@ PP-OCR \cite{du2020ppocr}.
 \section{Data}
 \label{sec:pipeline}
 
-\textbf{Footage.} Four complete Hustler Casino Live cash-game sessions
-(February to July 2026, 22 hours total) featuring one high-volume
-professional (all four sessions) and a second recreational player (one
-session). The stream exposes hole cards in its graphics, providing ground
+\textbf{Footage.} Eight complete Hustler Casino Live cash-game sessions
+(October 2025 to July 2026, 46.6 hours total) featuring one high-volume
+professional (all eight sessions) and a second recreational player (one
+session). The first four sessions constitute round 1; four further
+sessions were added under the round 2 preregistration. The stream exposes hole cards in its graphics, providing ground
 truth without any inference from behavior.
 
 \section{Methodology}
@@ -215,12 +221,16 @@ player; only covered, labeled decisions enter the ablations.}
 \toprule
 Session & Hours & Snapshots & Hands & Decisions & Labeled & Covered \\
 \midrule
+Oct 2025     & 6.7 & 22{,}636 & 156 & 1{,}736 & 1{,}079 & 75 \\
+Dec 2025     & 6.4 & 22{,}774 & 196 & 1{,}814 & 1{,}223 & 26 \\
 Feb 2026     & 5.2 & 17{,}501 & 141 & 1{,}320 & 1{,}163 & 114 \\
+Mar 2026     & 6.4 & 21{,}851 & 212 & 1{,}770 & 1{,}511 & 31 \\
 Apr 2026     & 5.5 & 18{,}814 & 164 & 1{,}188 & 1{,}027 & 55 \\
 Jul 2026 (a) & 5.2 & 18{,}436 & 225 & 1{,}561 & 1{,}278 & 51 \\
 Jul 2026 (b) & 5.9 & 20{,}730 & 192 & 1{,}570 & 1{,}347 & 72 \\
+Jul 2026 (c) & 5.3 & 18{,}011 & 175 & 1{,}458 & 1{,}173 & 70 \\
 \midrule
-Total        & 21.8 & 75{,}481 & 722 & 5{,}639 & 4{,}815 & 292 \\
+Total        & 46.6 & 160{,}753 & 1{,}461 & 12{,}417 & 9{,}801 & 494 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -381,9 +391,10 @@ the null's lower tail ($p = 0.018$).}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/session_locality.pdf}
-\caption{Session locality. Within-session grouped cross-validation finds
-marginal, heterogeneous behavioral signal; the same features transfer
-significantly below chance across sessions.}
+\caption{Session locality, resolved on eight sessions (round 2).
+Within-session grouped cross-validation finds real but heterogeneous
+behavioral signal (pooled CI excludes chance); the same features
+transfer at or below chance across sessions.}
 \label{fig:locality}
 \end{figure}
 
@@ -460,6 +471,42 @@ head motion & $-$ & $-$ & $+$ & $-$ \\
 \end{tabular}
 \end{table}
 
+\subsection{Round 2: Preregistered Resolution and Learned Representations}
+
+A second preregistration, committed before any round 2 footage was
+downloaded, fixed two experiments: four additional sessions to resolve
+the within-session estimate, and a frozen DINOv2 ViT-S/14 probe
+(identity-gated face and pose crops, mean and std pooling, PCA to 32
+components fit on training folds) to test whether a learned
+representation changes the out-of-session answer.
+
+\textbf{Within-session signal is real.} Pooled within-session grouped
+cross-validation across all eight sessions gives a behavior-only AUC of
+$0.587$ with a hand-grouped bootstrap 95\% CI of $[0.515, 0.655]$
+($n=494$), excluding chance under the frozen resolution criterion
+(Figure \ref{fig:locality}). Per-session values remain strongly
+heterogeneous ($0.26$ to $0.76$); the best session ($0.756$) is the one
+in which the primary player wore no sunglasses, though the second
+bare-faced session scores low at small $n$, so the occlusion account
+stays a hypothesis. The cross-session arm on the same enlarged pool
+stays at or below chance (behavior-only $0.430$, CI $[0.358, 0.502]$;
+face and pose delta over betting $-0.034$, CI $[-0.080, +0.012]$). The
+session-locality claim is thereby resolved at both ends: tells exist
+within a night and do not transfer across nights.
+
+\textbf{A learned representation does not change the answer.} The
+preregistered DINOv2 probe adds $+0.012$ over the betting baseline out
+of session (CI $[-0.079, +0.103]$, $n=257$ embedding-covered
+decisions): a null, extending the conclusion from hand-crafted features
+to a standard frozen representation. Two nuances are worth recording.
+The embedding probe alone transfers at $0.545$, above the inverted
+hand-crafted features, so embeddings are uninformative rather than
+misleading out of session. Within sessions the probe scores $0.398$
+(CI $[0.320, 0.476]$), below chance where the ten hand-crafted features
+find real signal: at these sample sizes a 1536-dimensional
+representation reduced to 32 components is less stable than ten
+purpose-built features, a capacity lesson for small behavioral corpora.
+
 \section{Discussion}
 
 Three readings of these results deserve separation. The narrow reading is
@@ -475,9 +522,10 @@ effect. The broad reading is substantive: even within one professional,
 behavior-strength associations invert across nights, which is what one
 expects if experienced players' surface behavior is dominated by context,
 table dynamics, and deliberate randomization rather than stable leakage.
-Our data cannot distinguish ``no tell exists'' from ``tells exist but are
-contextual and unstable''; both entail that broadcast-scale models of this
-class cannot use them.
+Round 2 resolves the distinction that round 1 could not: tells exist
+(within-session signal excludes chance under a preregistered criterion)
+and are contextual and unstable across nights, which entails that
+broadcast-scale models of this class cannot use them out of session.
 
 The artifact deserves the emphasis we give it. It produced, in our own
 hands, a preregistration-worthy positive estimate with a confidence
