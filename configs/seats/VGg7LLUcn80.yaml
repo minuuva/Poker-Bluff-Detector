@@ -1,0 +1,21 @@
+# Seat map for session VGg7LLUcn80 (Dec 20 2025, "Nik Airball, Peter,
+# Turbo, Mariano & Tomer, $100/200").
+#
+# AIRBALL: shaved head, NO sunglasses, white CoinPoker hoodie. The
+# t=18966 tank close-up centers his bearded OPPONENT, not him (the
+# wider t=18940 frame of the same hand proves it), so tank-cam frames
+# were rejected and references come from his commit flips: RAISE $500
+# at t=2664 and ALL IN $21,300 at t=3628, both frontal.
+
+seats:
+  AIRBALL:
+    search: {x: 150, y: 0, w: 1100, h: 700}
+    face_refs:
+      - {t: 2660.0, cx: 469}
+      - {t: 2662.0, cx: 310}
+      - {t: 5420.0, cx: 744}
+    # Frame-verified opponents inside the search region: the bearded
+    # gray-tee player and the dark-haired player from the t=18940 hand.
+    distractors:
+      - {t: 2666.0, cx: 828}
+      - {t: 18944.0, cx: 1057}

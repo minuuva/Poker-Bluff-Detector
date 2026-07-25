@@ -1,0 +1,21 @@
+# Seat map for session 5VALaTpNrdE (Oct 18 2025, "Nik Airball, Peter,
+# Turbo, Jellyfish & Big Mike, $100/200").
+#
+# AIRBALL: shaved head, trimmed beard, black hoodie, NO sunglasses.
+# References from two independent monster-pot tank windows that center
+# him: KK facing $90,600 (t=2510, a 108 second tank) and KJ facing
+# $103,200 (t=19006).
+
+seats:
+  AIRBALL:
+    search: {x: 300, y: 0, w: 1100, h: 700}
+    face_refs:
+      - {t: 2516.0, cx: 660}
+      - {t: 4806.0, cx: 958}
+      - {t: 14810.0, cx: 1002}
+    # Frame-verified lookalikes above the gate: the older bald player in
+    # the Clubs Poker tee (two poses) and the young black-tee player.
+    distractors:
+      - {t: 17392.0, cx: 1245}
+      - {t: 4645.0, cx: 655}
+      - {t: 3924.0, cx: 1038}

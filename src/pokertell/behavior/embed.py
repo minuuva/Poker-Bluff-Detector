@@ -89,6 +89,16 @@ def pool_stream(embs: np.ndarray) -> np.ndarray:
     return np.concatenate([embs.mean(axis=0), embs.std(axis=0)])
 
 
+def _clamped(crop: np.ndarray, x: int, y: int, w: int, h: int) -> np.ndarray | None:
+    """Bbox slice clamped to the crop; None when degenerate. Landmark-derived
+    boxes can poke outside the frame and produce empty arrays otherwise."""
+    x0, y0 = max(0, x), max(0, y)
+    x1, y1 = min(crop.shape[1], x + w), min(crop.shape[0], y + h)
+    if x1 - x0 < 8 or y1 - y0 < 8:
+        return None
+    return crop[y0:y1, x0:x1]
+
+
 def _pose_crop(crop: np.ndarray, bbox: tuple[int, int, int, int]) -> np.ndarray:
     x, y, w, h = bbox
     px0, py0 = max(0, x - int(1.6 * w)), max(0, y - int(0.6 * h))
@@ -163,9 +173,11 @@ def extract_session_embeddings(
                             m = match_face(chips, ref)
                             if m is not None:
                                 bbox = faces[m[0]][1]
-                                x, y, w, h = bbox
-                                face_crops.append(crop[y : y + h, x : x + w])
-                                pose_crops.append(_pose_crop(crop, bbox))
+                                fc = _clamped(crop, *bbox)
+                                pc = _pose_crop(crop, bbox)
+                                if fc is not None and pc.size:
+                                    face_crops.append(fc)
+                                    pose_crops.append(pc)
                         n += 1
                 finally:
                     face.close()
