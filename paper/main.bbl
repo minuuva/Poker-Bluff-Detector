@@ -45,7 +45,7 @@ B.~A. Nosek, C.~R. Ebersole, A.~C. DeHaven, and D.~T. Mellor, ``The preregistrat
 B.~Efron and R.~J. Tibshirani, \emph{An Introduction to the Bootstrap}.\hskip 1em plus 0.5em minus 0.4em\relax Chapman and Hall/CRC, 1993.
 
 \bibitem{balasubramanian2015analysis}
-S.~Balasubramanian, A.~Melendez-Calderon, A.~Roby-Brami, and E.~Burdet, ``On the analysis of movement smoothness,'' \emph{Journal of NeuroEngineering and Rehabilitation}, vol.~12, no. 112, 2015.
+S.~Balasubramanian, A.~Melendez-Calderon, A.~Roby-Brami, and E.~Burdet, ``On the analysis of movement smoothness,'' \emph{Journal of NeuroEngineering and Rehabilitation}, vol.~12, no.~1, p. 112, 2015.
 
 \bibitem{hogan2009sensitivity}
 N.~Hogan and D.~Sternad, ``Sensitivity of smoothness measures to movement duration, amplitude, and arrests,'' \emph{Journal of Motor Behavior}, vol.~41, no.~6, pp. 529--534, 2009.
@@ -58,5 +58,11 @@ C.~Lugaresi, J.~Tang, H.~Nash, C.~McClanahan, E.~Uboweja, M.~Hays, F.~Zhang, C.-
 
 \bibitem{du2020ppocr}
 Y.~Du, C.~Li, R.~Guo, X.~Yin, W.~Liu, J.~Zhou, Y.~Bai, Z.~Yu, Y.~Yang, Q.~Dang, and H.~Wang, ``Pp-ocr: A practical ultra lightweight {OCR} system,'' \emph{arXiv preprint arXiv:2009.09941}, 2020.
+
+\bibitem{pedregosa2011scikit}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel, M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, J.~Vanderplas, A.~Passos, D.~Cournapeau, M.~Brucher, M.~Perrot, and {\'E}.~Duchesnay, ``Scikit-learn: Machine learning in {Python},'' \emph{Journal of Machine Learning Research}, vol.~12, pp. 2825--2830, 2011.
+
+\bibitem{oquab2024dinov2}
+M.~Oquab, T.~Darcet, T.~Moutakanni, H.~V. Vo, M.~Szafraniec, V.~Khalidov, P.~Fernandez, D.~Haziza, F.~Massa, A.~El-Nouby, M.~Assran, N.~Ballas, W.~Galuba, R.~Howes, P.-Y. Huang, S.-W. Li, I.~Misra, M.~Rabbat, V.~Sharma, G.~Synnaeve, H.~Xu, H.~J{\'e}gou, J.~Mairal, P.~Labatut, A.~Joulin, and P.~Bojanowski, ``{DINOv2}: Learning robust visual features without supervision,'' \emph{Transactions on Machine Learning Research}, 2024.
 
 \end{thebibliography}
