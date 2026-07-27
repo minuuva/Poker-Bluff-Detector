@@ -26,6 +26,15 @@ M.~L. Slepian, S.~G. Young, A.~M. Rutchick, and N.~Ambady, ``Quality of professi
 \bibitem{guo2023dolos}
 X.~Guo, N.~M. Selvaraj, Z.~Yu, A.~W.-K. Kong, B.~Shen, and A.~Kot, ``Audio-visual deception detection: {DOLOS} dataset and parameter-efficient crossmodal learning,'' in \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, 2023.
 
+\bibitem{brown2018superhuman}
+N.~Brown and T.~Sandholm, ``Superhuman {AI} for heads-up no-limit poker: {Libratus} beats top professionals,'' \emph{Science}, vol. 359, no. 6374, pp. 418--424, 2018.
+
+\bibitem{brown2019superhuman}
+------, ``Superhuman {AI} for multiplayer poker,'' \emph{Science}, vol. 365, no. 6456, pp. 885--890, 2019.
+
+\bibitem{quinonero2009dataset}
+J.~Qui{\~n}onero-Candela, M.~Sugiyama, A.~Schwaighofer, and N.~D. Lawrence, Eds., \emph{Dataset Shift in Machine Learning}.\hskip 1em plus 0.5em minus 0.4em\relax MIT Press, 2009.
+
 \bibitem{deng2019arcface}
 J.~Deng, J.~Guo, N.~Xue, and S.~Zafeiriou, ``Arcface: Additive angular margin loss for deep face recognition,'' in \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2019.
 

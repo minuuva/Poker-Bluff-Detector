@@ -88,7 +88,9 @@ graphics package into per-second game-state snapshots, a state machine
 that reassembles hands and decision windows, Monte Carlo equity labels
 from the exposed hole cards, and per-decision behavioral features from
 face landmarks, blendshapes, and body pose. Features carry per-player
-normalization and explicit bet-size leakage controls.
+normalization and explicit bet-size leakage controls. A released demo
+renderer overlays every extracted signal on the source broadcast
+(Figure \ref{fig:demo}).
 
 \textbf{(2) An identity-contamination case study} (Section
 \ref{sec:artifact}). Behavioral datasets built on multi-person footage must
@@ -118,7 +120,33 @@ Learned behavior-to-strength associations are session-specific in sign:
 real enough to fit, wrong enough to mislead on a new night. Tells are
 session-local, at both ends of the claim.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/demo_frame.jpg}
+\caption{One annotated frame from the released demo renderer (July 2026
+(b) session, hand 48, flop decision). Green box: identity-gated face
+attribution with its re-identification score. Colored contours are
+MediaPipe face landmarks (brows, eyes, lips); the magenta ray is the
+gaze vector, the yellow arrow the head direction, and the yellow trace
+the One-Euro-filtered acting-wrist path that feeds the kinematic
+features. Top right: the held-out six-class strength distribution, the
+\texttt{is\_bluff} probability with and without behavioral features,
+and live per-window readouts standardized against the player's own
+baseline. Bottom center: hand identifier, street, pot, actor, and
+decision clock from the OCR game state. The purple player panels and
+pot graphics are part of the source broadcast.}
+\label{fig:demo}
+\end{figure*}
+
 \section{Related Work}
+
+\textbf{Poker AI plays cards, not people.} Superhuman poker agents
+reached and then surpassed top human play from game state and betting
+action alone \cite{brown2018superhuman}, \cite{brown2019superhuman}. No
+behavioral channel appears anywhere in that line of work. Whether human
+nonverbal behavior carries residual, machine-readable signal on top of
+the betting action is exactly the claim the broadcast overlay
+popularized, and the one we test.
 
 \textbf{Behavioral cues to poker hand strength.}
 Slepian et al.\ \cite{slepian2013quality} showed observers rate hand quality above chance
@@ -127,9 +155,13 @@ face-only clips were directionally below chance. This motivates our
 smoothness features and our expectation that any true effect is small. Work
 on automated deception detection in the wild reports within-domain
 accuracy around 60 to 67 percent on gameshow and courtroom corpora and
-severe degradation across domains \cite{guo2023dolos}. Our result extends
-this pattern to a naturalistic, high-stakes, repeated-game setting with
-objective ground truth.
+severe degradation across domains \cite{guo2023dolos}. Cross-session
+failure of this kind is dataset shift \cite{quinonero2009dataset}: the
+deployment distribution differs from training in ways the model cannot
+see. Our result extends this pattern to a naturalistic, high-stakes,
+repeated-game setting with objective ground truth, and sharpens it to
+shift across nights within one venue, one broadcast package, and one
+player.
 
 \textbf{Person identification hygiene.} Face verification
 \cite{deng2019arcface} and person re-identification \cite{zheng2016person}
@@ -619,7 +651,15 @@ The betting baseline is deliberately simple; a stronger baseline would
 only shrink headroom for behavior. Our features are window-level
 summaries. Sequence models over raw streams remain untested here, though
 they face the same coverage and identity constraints with more capacity
-to overfit them.
+to overfit them. Two round 2 observations mark future work rather than
+conclusions. The best within-session score came from the one session in
+which the primary player wore no sunglasses, so occlusion may bound the
+face channel; a targeted comparison of bare-faced versus occluded
+sessions would test that directly. And the DINOv2 probe scored below
+chance within sessions where ten purpose-built features found signal,
+suggesting that representation capacity at this sample size, not
+representation quality, is what binds; the remedy is more covered
+decisions, not bigger models.
 
 \section{Conclusion}
 
@@ -641,9 +681,10 @@ identity first, preregister second, and only then believe an effect.
 \section{Ethics and Reproducibility}
 
 All footage is publicly broadcast with player consent to the stream's
-hole-card exposure. We analyze it post hoc, redistribute no footage or
-identifiable imagery, and publish code, derived features, timestamps,
-and the preregistrations rather than clips. Pipeline, analysis code,
+hole-card exposure. We analyze it post hoc and redistribute no footage;
+the single annotated frame in Figure \ref{fig:demo} is reproduced from
+the public broadcast to illustrate the system. We publish code, derived
+features, timestamps, and the preregistrations rather than clips. Pipeline, analysis code,
 seat maps, audit tooling, figure scripts, and the frozen
 preregistrations with their logged results are available at
 \url{https://github.com/minuuva/Poker-Bluff-Detector} (private during
