@@ -123,18 +123,21 @@ session-local, at both ends of the claim.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/demo_frame.jpg}
-\caption{One annotated frame from the released demo renderer (July 2026
-(b) session, hand 48, flop decision). Green box: identity-gated face
+\caption{One annotated frame from the released demo renderer (October
+2025 session, hand 120, river decision). Green box: identity-gated face
 attribution with its re-identification score. Colored contours are
-MediaPipe face landmarks (brows, eyes, lips); the magenta ray is the
+MediaPipe face landmarks (brows, eyelids, lips); the magenta ray is the
 gaze vector, the yellow arrow the head direction, and the yellow trace
 the One-Euro-filtered acting-wrist path that feeds the kinematic
-features. Top right: the held-out six-class strength distribution, the
+features; the tag beside the box is a live event detector (brow
+furrowed). Top right: the held-out six-class strength distribution, the
 \texttt{is\_bluff} probability with and without behavioral features,
 and live per-window readouts standardized against the player's own
 baseline. Bottom center: hand identifier, street, pot, actor, and
-decision clock from the OCR game state. The purple player panels and
-pot graphics are part of the source broadcast.}
+decision clock from the OCR game state. The gold player panels and pot
+graphics are part of the source broadcast. This session is the one in
+which the primary player wore no eyewear, so eyelid and gaze tracking
+are unoccluded.}
 \label{fig:demo}
 \end{figure*}
 
