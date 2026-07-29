@@ -201,13 +201,13 @@ data/          local only, gitignored (see data/README.md)
 
 ## Paper
 
-Minu Choi, "MediaPipe and DINOv2 Representations for Hand-Strength
+Minwoo Choi, "MediaPipe and DINOv2 Representations for Hand-Strength
 Prediction in Broadcast Poker," University of Virginia, 2026. Preprint
 on Zenodo (DOI to be added upon publication).
 
 ```bibtex
 @misc{choi2026handstrength,
-  author       = {Choi, Minu},
+  author       = {Choi, Minwoo},
   title        = {MediaPipe and DINOv2 Representations for Hand-Strength
                   Prediction in Broadcast Poker},
   year         = {2026},
