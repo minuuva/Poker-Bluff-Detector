@@ -5,6 +5,8 @@
 
 # MediaPipe and DINOv2 Representations for Hand-Strength Prediction in Broadcast Poker
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21687440.svg)](https://doi.org/10.5281/zenodo.21687440)
+
 Televised poker commentary and a recent broadcast "AI bluff detector"
 popularized the claim that nonverbal behavior reveals hand strength on
 camera. This repository holds the pipeline, analysis code, seat maps,
@@ -203,7 +205,7 @@ data/          local only, gitignored (see data/README.md)
 
 Minwoo Choi, "MediaPipe and DINOv2 Representations for Hand-Strength
 Prediction in Broadcast Poker," University of Virginia, 2026. Preprint
-on Zenodo (DOI to be added upon publication).
+on Zenodo: [doi:10.5281/zenodo.21687440](https://doi.org/10.5281/zenodo.21687440).
 
 ```bibtex
 @misc{choi2026handstrength,
@@ -211,7 +213,9 @@ on Zenodo (DOI to be added upon publication).
   title        = {MediaPipe and DINOv2 Representations for Hand-Strength
                   Prediction in Broadcast Poker},
   year         = {2026},
-  howpublished = {Zenodo preprint}
+  howpublished = {Zenodo preprint},
+  doi          = {10.5281/zenodo.21687440},
+  url          = {https://doi.org/10.5281/zenodo.21687440}
 }
 ```
 
