@@ -1,231 +1,227 @@
-# Poker Tell Analysis
+<p align="center">
+  <a href="media/demo_5VALaTpNrdE_0120.mp4"><img src="media/demo.gif" alt="Annotated demo overlay: identity-gated face tracking, gaze vector, wrist path, live event tags, and held-out model probabilities rendered over a broadcast poker decision" width="960"></a>
+</p>
+<p align="center"><em>The demo renderer on a river decision from the October 2025 session: identity-gated face attribution with its re-identification score, MediaPipe landmarks, gaze vector, acting-wrist path, live event tags, and held-out model probabilities, rendered over the source broadcast. Click for the <a href="media/demo_5VALaTpNrdE_0120.mp4">full clip</a>.</em></p>
 
-Does nonverbal behavior add predictive power over betting action alone?
-An ablation study on broadcast poker footage, inspired by the AI bluff
-detector featured in ESPN's 2026 WSOP coverage.
+# MediaPipe and DINOv2 Representations for Hand-Strength Prediction in Broadcast Poker
 
-**Status: day 3 of a one-week build.** Game-state extraction works end to
-end on real footage: broadcast HUD OCR, card sprite recognition, and the
-hand-history assembler that folds the snapshot stream into Hand records
-with per-decision windows. 24 minutes of test footage across two sessions
-reconstructs into 16 hands with 112 decisions, 68 of them with exact
-action-on-player to action-committed windows. Behavior extraction, models,
-and the demo land per the plan below.
+Televised poker commentary and a recent broadcast "AI bluff detector"
+popularized the claim that nonverbal behavior reveals hand strength on
+camera. This repository holds the pipeline, analysis code, seat maps,
+audit tooling, and frozen preregistrations behind a paper that tests
+that claim end to end: does adding automatically extracted nonverbal
+behavior improve prediction of hand strength over the betting action
+alone, evaluated out of session, on public footage?
 
-## The question
+## Findings
 
-The 2026 WSOP broadcast featured a system (built by Luke Geel for Omaha
-Productions) that reads the stream, tracks player behavior, and estimates
-hand-strength classes. No open-source equivalent exists. This project
-replicates the pipeline on a laptop and asks the honest version of the
-question: given everything the betting action already tells you (sizing,
-position, street, action history), do face, posture, and chip-motion features
-add measurable predictive power?
+- **An identity-contamination artifact is the central methodological
+  result.** Under progressively stricter face-attribution hygiene, an
+  apparent behavioral effect first strengthened to a nominally
+  resolvable delta AUC of +0.096 (95% CI [+0.005, +0.181]) and then
+  vanished entirely (+0.009, [-0.058, +0.074]) once every enrolled
+  reference face was verified. The spurious effect was produced by
+  frames in which a lookalike neighbor was silently credited to the
+  tracked player.
+- **A preregistered replication decisively failed.** With the analysis
+  frozen before the new footage was downloaded, face and pose features
+  change out-of-session AUC by -0.075 (95% CI [-0.134, -0.020], n=292),
+  with approximately 91% power to detect the registered +0.096.
+- **The negative is an inversion, not noise.** A behavior-only model
+  scores AUC 0.349 out of session, below chance under a hand-level
+  permutation test (p = 0.018), and no regularization scheme rescues
+  the features. No behavioral feature keeps its fitted sign across all
+  four round 1 sessions.
+- **Tells are session-local.** In a second preregistered round on eight
+  sessions, within-session behavior-only AUC resolved positive at 0.587
+  (95% CI [0.515, 0.655], n=494), while cross-session transfer stays at
+  or below chance (0.430, [0.358, 0.502]). Tells exist and are
+  machine-readable within a session, and they do not transfer across
+  sessions.
+- **A learned representation does not change the answer.** A
+  preregistered frozen DINOv2 probe adds +0.012 over betting action out
+  of session (CI [-0.079, +0.103], n=257), extending the conclusion
+  from hand-crafted features to a standard learned representation.
+- **Decision timing is bounded.** The most cited poker tell, tank
+  duration, needs no camera and is bounded below +0.01 AUC over betting
+  action at n=4,815.
 
-The literature says any effect is small: humans average 54% at lie detection,
-the best audio-visual deception models sit at 54 to 67% accuracy, and the
-strongest published poker cue is the smoothness of the betting motion
-(r = .29), not the face (r = -.07, if anything deceptive). The deliverable is
-a defensible delta with confidence intervals, not a magic bluff detector. See
-[RESEARCH.md](RESEARCH.md) for sources.
+The conclusion the paper draws: identity hygiene, not feature
+engineering, is the binding methodological risk for behavioral video
+datasets built on multi-person footage, and behavioral hand-strength
+models of this class do not generalize across sessions.
 
-## Results (two full sessions, 11 hours of broadcast)
+## Data
 
-Data: two complete Hustler Casino Live sessions (Jul 2026 and Feb 2026),
-38,231 HUD snapshots, 333 assembled hands, 2,890 decision windows, 2,510 of
-them with Monte Carlo equity labels from the exposed hole cards. Behavioral
-features exist for 442 decision windows across the two mapped players (Nik
-Airball in both sessions, Suited Superman in one); a window is covered only
-when the player's seat camera is on air and face re-identification accepts
-the frames. Evaluation is leave-one-session-out (LOSO): train on one
-session, test on the other, pool the out-of-fold predictions.
+Eight complete Hustler Casino Live cash-game sessions (October 2025 to
+July 2026, 46.6 hours) featuring one high-volume professional in all
+eight. The stream exposes hole cards in its graphics, providing ground
+truth without any inference from behavior. The pipeline reduces the
+footage to a labeled decision-level dataset:
 
-| Ablation arm | Target | n | delta AUC over betting-only (95% CI) |
-|--------------|--------|---|--------------------------------------|
-| + face and pose features | is_weak | 186 | +0.009 [-0.058, +0.074] |
-| + event detectors only | is_weak | 186 | -0.032 [-0.113, +0.046] |
-| + all behavior | is_weak | 186 | -0.033 [-0.143, +0.072] |
-| + face and pose features | is_bluff | 78 | -0.022 [-0.169, +0.136] |
-| + event detectors only | is_bluff | 78 | -0.007 [-0.117, +0.099] |
-| + all behavior | is_bluff | 78 | +0.019 [-0.131, +0.185] |
+| Stage | Count |
+|---|---|
+| Hours of broadcast | 46.6 |
+| Game-state snapshots (1 Hz OCR) | 160,753 |
+| Assembled hands | 1,461 |
+| Decision windows | 12,417 |
+| Decisions with Monte Carlo equity labels | 9,801 |
+| Camera-covered decisions entering ablations | 494 |
 
-The betting-only baseline scores AUC 0.55 on all 670 labeled aggressive
-decisions (cross-session; the same model scores 0.75 within-session).
-
-**Preregistered replication (iteration 4): FAILED, decisively.** Two new
-sessions (Jul 4 and Apr 25, 2026) were selected, seat-mapped with
-commit-moment evidence, and distractor-audited before any model output,
-under a preregistered analysis plan (docs/prereg_iteration4.md) committed
-before the footage was downloaded. The pooled four-session test of the
-face-and-pose hypothesis returned delta AUC -0.075 with a hand-grouped
-bootstrap 95% CI of [-0.134, -0.020]: behavioral features not only fail
-to add out-of-session predictive power at this scale, they measurably
-subtract it, which is what noisy added dimensions do to a small model.
-
-The honest reading is the story of an artifact, and it is the project's
-most instructive result.
-
-**A behavioral "effect" appeared, strengthened, and then vanished as
-identity attribution was progressively cleaned.** On the original tables,
-where a lookalike neighbor's face was sometimes silently attributed to the
-tracked player, adding face and pose features read as delta +0.044 (CI
-including zero). After distractor references were added but while a
-wrong-person chip still sat inside each session's positive reference
-library, the delta read +0.096 with a CI excluding zero, which briefly
-looked like the project's first resolvable effect. With enrollment made
-deterministic, position-bounded, and every reference chip visually
-verified, the delta is +0.009 with a CI comfortably spanning zero. The
-apparent signal was cross-player contamination: another player's face,
-measured during the tracked player's decisions, correlates with decision
-context in ways that imitate a behavioral tell. Identity hygiene did not
-just beat feature engineering, it was the entire observed effect.
-
-**Every arm is now a null at this sample size.** Face and pose, the event
-detectors, and their union all land inside noise on both targets. The
-event detectors (downward gaze rate, hand near face, freeze, chip shuffle
-periodicity, forward lean) were built bet-size leakage-proof and are
-shipped as an honest null.
-
-**What it would take to find a real effect** is unchanged by any of this:
-an order of magnitude more covered decisions, meaning 15 to 20 more
-sessions, plus the identity discipline this project now enforces
-(deterministic enrollment, distractor registration, chip-level visual
-verification). Two structural findings stand: cross-session
-generalization is brutal (betting baseline 0.75 within-session falls to
-0.55 across sessions), and camera coverage binds everything behavioral
-(clean face coverage runs about 29 to 33 percent for the primary player;
-a player in mirrored sunglasses drops to 4 percent). A preregistered
-replication on unseen sessions (docs/prereg_iteration4.md) is in
-progress; under the now-null in-sample estimate its expected outcome is
-a failed replication, and it will be reported either way.
-
-Calibration plot: [docs/reliability.png](docs/reliability.png). Full tables
-regenerate with `pokertell report`.
+The last row is the honest cost of broadcast footage: behavior can be
+measured only when the camera shows the player, and coverage is set by
+the broadcast director, not by the researcher. Raw footage and derived
+data stay local by design and are never committed.
 
 ## Pipeline
 
 ```mermaid
 flowchart LR
-    A[yt-dlp<br>session video] --> B[Game state<br>ROI OCR + card templates<br>hand-history state machine]
-    A --> C[Behavior<br>MediaPipe face + pose<br>chip-push smoothness]
+    A[Session video] --> B[Game state<br>ROI OCR + card templates<br>hand-history state machine]
+    A --> C[Behavior<br>identity-gated MediaPipe<br>face + pose + events]
+    A --> I[Embeddings<br>frozen DINOv2 crops<br>round 2]
     B --> D[Labels<br>equity from exposed<br>hole cards -> 6 classes]
     B --> E[Betting baseline<br>features]
     C --> F[Behavioral features<br>z-scored per player]
-    D --> G[Ablation<br>baseline vs baseline+behavior<br>session/player held out]
+    D --> G[Ablation<br>baseline vs baseline+behavior<br>leave-one-session-out]
     E --> G
     F --> G
+    I --> G
     G --> H[Report + demo overlay]
 ```
 
-The unit of analysis is one player decision: the window from action-on-player
-to action-committed. Labels come from the broadcast's own hole-card overlay
-(players consented to it being shown), classed as bluff / weak draw / medium /
-strong draw / strong / monster via Monte Carlo equity.
+The unit of analysis is one player decision: the window from
+action-on-player to action-committed. Each stage is a CLI subcommand,
+and later stages resume from checkpoints:
+
+| Command | What it does |
+|---|---|
+| `pokertell extract-state VIDEO` | Region-cropped PP-OCRv6 OCR and card template matching into per-second game-state snapshots |
+| `pokertell assemble SNAPSHOTS` | State machine that folds snapshots into hands and decision windows |
+| `pokertell label` | Monte Carlo equity versus a random hand (deterministic seeds), six strength classes, `is_weak` and `is_bluff` targets |
+| `pokertell extract-behavior VIDEO HANDS SEATS` | Identity-gated MediaPipe face and pose features plus six leakage-reviewed event detectors per decision window |
+| `pokertell embed VIDEO HANDS SEATS` | Frozen DINOv2 ViT-S/14 embeddings of identity-gated face and pose crops (round 2, `embed` extra) |
+| `pokertell train` | Leave-one-session-out baselines and ablations with hand-grouped bootstrap 95% CIs |
+| `pokertell demo VIDEO --hand-id ID --t-end T` | Renders one decision window as the annotated overlay clip shown above |
+
+Identity attribution follows the protocol documented in the paper:
+deterministic position-bounded reference enrollment, visual
+verification of every enrolled patch, a per-session sweep that
+registers every above-threshold non-target face as a distractor, and
+margin-based best-candidate matching. Per-session seat maps with
+verified references and registered distractors live in
+`configs/seats/`.
 
 ## Design decisions that matter
 
-- **Per-player baselines.** Tells are player-specific, so every behavioral
-  feature is z-scored against that player's own distribution.
-- **Chip-motion smoothness first.** Slepian et al. 2013 found rated motion
-  smoothness was the strongest cue (r = .29); we operationalize it as wrist
-  trajectory RMS jerk and spectral arc length, One-Euro filtered.
-- **Face features stay in their own ablation group.** The same study found
-  face+arm fusion cancelled the arm signal.
-- **Leakage guards.** Behavioral columns can never encode bet size; whole
-  sessions go to one side of the split; evaluation is per decision, never per
-  overlapping frame window; grouped bootstrap CIs at the hand level.
-- **Betting-only baseline is the bar.** A behavioral model is only as
-  interesting as its delta over position + sizing + action history.
+- **Per-player baselines.** Tells are player-specific, so every
+  behavioral feature is z-scored against that player's own
+  distribution.
+- **Leakage guards.** Behavioral columns can never encode bet size:
+  wrist smoothness metrics are amplitude-invariant by construction, and
+  the event detectors are rates, fractions, ratios, or shoulder-width
+  geometry. Whole sessions go to one side of every split, and CIs are
+  bootstrapped at the hand level so correlated decisions within a hand
+  never narrow an interval.
+- **The betting-only baseline is the bar.** A behavioral model is only
+  as interesting as its delta over position, sizing, pot odds, street,
+  action history, and timing.
+- **Simple analysis models on purpose.** With hundreds of covered
+  decisions, anything more flexible than a linear probe would mostly
+  measure its own variance; readable coefficients are also what make
+  the per-session sign-flip analysis possible.
 
-## One-week plan
+## The demo renderer
 
-| Day | Milestone |
-|-----|-----------|
-| 1 | Download 2-3 HCL sessions, calibrate ROIs, PaddleOCR spike on HUD fields |
-| 2-3 | Card template matching, hand-history state machine, validate vs 30+ hand-transcribed decisions |
-| 4 | Face/pose extraction over decision windows, smoothness features |
-| 5 | Equity labels, betting baseline, first ablation run |
-| 6 | Held-out evaluation, bootstrap CIs, calibration, results writeup |
-| 7 | Demo overlay clip, README results section, polish |
-
-## Demo clips
-
-`pokertell demo` renders one decision window with the pipeline's full view
-burned on top: the assembled game state with a decision-time bar, the face
-re-identification box with its live chip score, eye, brow and lip contours
-with a gaze arrow, head-facing arrow and expression tags from the
-landmarks the features are computed from, a One-Euro smoothed trail of the
-acting wrist, a live blink counter, the window's behavioral z-scores
-labeled against the player's own baseline, the held-out six-class
-hand-strength distribution, and P(bluff) for the betting baseline next to
-baseline + behavior. The clip freezes on a hole-card and equity reveal.
-The six-class panel is deliberately uncalibrated held-out output; when it
-overcommits on a bluff, that is the cross-session transfer problem making
-the project's own argument.
+`pokertell demo` renders one decision window with the pipeline's full
+view burned on top: the assembled game state with a decision clock, the
+face attribution box with its live re-identification score, landmark
+contours with gaze and head-direction vectors, event tags as they fire,
+a One-Euro smoothed trail of the acting wrist, the window's behavioral
+z-scores against the player's own baseline, the held-out six-class
+strength distribution, and P(is_bluff) for the betting baseline next to
+baseline plus behavior. The clip freezes on a hole-card and equity
+reveal. The strength panel is deliberately uncalibrated held-out
+output.
 
 ```
-pokertell demo data/raw/loAuriiBRCk.mp4 --hand-id "loAuriiBRCk#0111" --t-end 14499
+pokertell demo data/raw/5VALaTpNrdE.mp4 --hand-id "5VALaTpNrdE#0120" --t-end 19029
 ```
 
-Rendered clips stay local under data/demo (see Ethics and data); the two
-showcase windows are Airball's turn raise at 10 percent equity
-(loAuriiBRCk#0111, a genuine bluff) and his flop raise at 77 percent
-(osFhAW7BFMs#0048, the contrast case). On the bluff clip the behavior
-model actually moves the estimate the wrong way, which is exactly what a
-null aggregate delta looks like at the level of a single hand.
+## Installation
 
-## Setup
-
-Requires Python 3.12 (eval7 wheels stop at 3.12), [uv](https://docs.astral.sh/uv/),
-and ffmpeg.
+Requires Python 3.11 or 3.12, [uv](https://docs.astral.sh/uv/), and
+ffmpeg.
 
 ```sh
 uv sync                 # core pipeline + dev tools
 uv sync --extra ocr     # adds PaddleOCR (heavy; needed for extract-state)
+uv sync --extra embed   # adds torch for the DINOv2 arm
 uv run pytest           # unit tests
 uv run pokertell --help # pipeline stages
 ```
+
+MediaPipe models download automatically on first use.
+
+## Preregistration and reproducibility
+
+Both confirmatory rounds were frozen in committed preregistration
+documents before any new footage was downloaded, with the results
+appended afterward exactly as specified:
+
+- [docs/prereg_iteration4.md](docs/prereg_iteration4.md): the
+  replication test of the +0.096 estimate, including the logged session
+  substitution and the recorded failure.
+- [docs/prereg_round2.md](docs/prereg_round2.md): the DINOv2
+  representation probe and the within-session resolution on eight
+  sessions.
+
+The full analysis history, including the artifact's discovery and every
+estimate in the paper's Figure 2, is preserved in this repository's
+commit log. Paper figures regenerate with
+`paper/figures/make_figures.py`.
 
 ## Repo layout
 
 ```
 src/pokertell/
-  ingest/      yt-dlp download wrapper
+  ingest/      session download wrapper
   gamestate/   ROI crops, HUD OCR, card templates, hand-history state machine
-  behavior/    face blendshapes, pose, One-Euro filter, smoothness metrics
+  behavior/    face blendshapes, pose, event detectors, DINOv2 embeddings
   labels/      Monte Carlo equity -> strength classes
   models/      betting baseline features, ablation trainer
   eval/        grouped splits, ablation metrics, calibration
-  demo/        ffmpeg overlay renderer
-configs/       per-show HUD ROI layouts
+  demo/        overlay renderer and held-out demo probabilities
+configs/       per-show ROI layouts, card templates, per-session seat maps
+docs/          frozen preregistrations with logged results
+media/         demo clip and README assets
 tests/         unit tests for all pure logic
 data/          local only, gitignored (see data/README.md)
 ```
 
-## Ethics and data
+## Paper
 
-- Footage comes only from streams where players consented to their hole cards
-  being broadcast (Hustler Casino Live). No hidden-information analysis.
-- This is post-hoc analysis of published broadcasts, the same activity as
-  studying a televised game. It is not built for, and must not be used for,
-  real-time play. The original system's builder draws the same line.
-- No footage, frames, or clips are committed or redistributed. The repo ships
-  code; derived numeric features and timestamps are shareable on request.
-- Findings are reported with uncertainty, including null results. Given the
-  literature, a small or null behavioral effect is the expected outcome and
-  will be published as such.
+Minu Choi, "MediaPipe and DINOv2 Representations for Hand-Strength
+Prediction in Broadcast Poker," University of Virginia, 2026. Preprint
+on Zenodo (DOI to be added upon publication).
 
-## Key references
+```bibtex
+@misc{choi2026handstrength,
+  author       = {Choi, Minu},
+  title        = {MediaPipe and DINOv2 Representations for Hand-Strength
+                  Prediction in Broadcast Poker},
+  year         = {2026},
+  howpublished = {Zenodo preprint}
+}
+```
 
-- Slepian, Young, Rutchick, Ambady (2013). Quality of professional players'
-  poker hands is perceived accurately from arm motions. Psychological Science.
-- Bond, DePaulo (2006). Accuracy of deception judgments. PSPR.
-- Denault et al. (2020). The analysis of nonverbal communication: the dangers
-  of pseudoscience in security and justice contexts. Frontiers in Psychology.
-- Guo et al. (2023). DOLOS: audio-visual deception detection. ICCV.
-- Cross-domain audio-visual deception detection benchmark, arXiv:2405.06995.
-- Feinland et al. (2022). Poker bluff detection dataset based on facial
-  analysis. ICIAP.
-- Geel, L. (2026). AI Insider: Can your poker tells be hacked? PokerOrg.
+## Ethics
 
-Full annotated findings: [RESEARCH.md](RESEARCH.md).
+All footage is publicly broadcast with player consent to the stream's
+hole-card exposure. The pipeline analyzes it post hoc and redistributes
+no footage; the single annotated frame in the paper and the short
+annotated demonstration clip above are reproduced from the public
+broadcast to illustrate the system. The repository publishes code,
+derived features, timestamps, and the preregistrations rather than
+clips. This is post-hoc analysis of published broadcasts; it is not
+built for, and must not be used for, real-time play.
